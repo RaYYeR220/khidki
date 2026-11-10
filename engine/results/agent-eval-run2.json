@@ -1,22 +1,22 @@
 {
- "run_at": "2026-11-10T15:23:51.797699+05:30",
+ "run_at": "2026-11-10T15:33:29.509183+05:30",
  "summary": {
   "model": "claude-haiku-5-5",
   "cases": 18,
   "khidki": {
-   "args_fields_correct": "73/77",
-   "states_engine_best_time": "11/12",
-   "replies_with_ungrounded_numbers": "4/18",
-   "ungrounded_numbers_total": 7,
-   "script_matches": "17/18",
-   "behaviour_ok": "17/18",
-   "median_seconds": 3.5
+   "args_fields_correct": "77/77",
+   "states_engine_best_time": "12/12",
+   "replies_with_ungrounded_numbers": "2/18",
+   "ungrounded_numbers_total": 2,
+   "script_matches": "18/18",
+   "behaviour_ok": "18/18",
+   "median_seconds": 4.1
   },
   "baseline_same_model_no_tools": {
-   "states_engine_best_time": "2/12",
-   "replies_with_ungrounded_numbers": "17/18",
-   "ungrounded_numbers_total": 64,
-   "script_matches": "17/18",
+   "states_engine_best_time": "4/12",
+   "replies_with_ungrounded_numbers": "15/18",
+   "ungrounded_numbers_total": 56,
+   "script_matches": "16/18",
    "behaviour_ok": "15/16"
   }
  },
@@ -26,7 +26,7 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Go at 13:00–14:00 tomorrow instead of 06:00. Forecast PM2.5 is about 140 µg/m³ then, versus about 184 at 06:00, so roughly 24% less PM2.5 for the same walk.\n\nMornings trap smoke under a low layer of air; by early afternoon it lifts. Even then, levels are in the \"Very Poor\" range, so keep the walk easy, and a well-fitted N95 mask helps outdoors. If you feel breathless or have chest pain, stop and seek medical care (emergency: 112).\n\nThe forecast is based on the Chanakyapuri monitor (about 4.8 km away) and has moderate confidence (0.6), so it's less certain for your exact spot.",
+    "reply": "Tomorrow, walk at 13:00–14:00 instead of 06:00. Forecast PM2.5 is about 140 µg/m³ then, versus about 184 at 06:00, roughly 24% less for the same walk.\n\nMornings trap smoke under a low layer of air; by early afternoon it has lifted. Even so, this is \"Very Poor\" all day, so keep the walk easy, and consider a well-fitted N95 mask outdoors. If you feel breathless or get chest pain, stop and seek medical care (emergency: 112).\n\nThe forecast is based on the Chanakyapuri monitor, about 4.8 km away, and is somewhat uncertain for your spot (confidence 0.6).\n\nWould you like me to save a daily 13:00 walk routine, with a reminder 45 minutes before?",
     "tools": [
      "find_window"
     ],
@@ -38,18 +38,18 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 6.7
+    "seconds": 7.2
    },
    "baseline": {
-    "reply": "आप सुबह 06:00 पर चलते हैं, लेकिन Lodhi Garden के आसपास सुबह की हवा अक्सर सबसे प्रदूषित होती है, क्योंकि रात में प्रदूषक जमा हो जाते हैं। कल के लिए बेहतर होगा कि आप 06:00 की बजाय दोपहर बाद, लगभग 15:00 से 17:00 के बीच चलें, जब हवा आमतौर पर थोड़ी साफ़ रहती है। अगर सुबह ही चलना ज़रूरी है, तो 06:00 से पहले नहीं, बल्कि सूरज निकलने के बाद 07:00 के आसपास चलें। Air quality app पर AQI देखकर अंतिम फ़ैसला लें, और AQI बहुत ऊँचा हो तो अंदर ही व्यायाम करें।",
+    "reply": "आपके लिए कल सुबह 06:00 की बजाय सुबह देर से, लगभग 07:00 से 08:00 के बीच, या शाम 17:00 के बाद टहलना बेहतर रहेगा, क्योंकि सुबह 06:00 के आसपास दिल्ली में PM2.5 का स्तर अक्सर सबसे ज़्यादा होता है। लोधी गार्डन में पेड़ों के बीच हवा थोड़ी साफ़ मिल सकती है, लेकिन वहाँ भी सर्दियों की सुबह प्रदूषण जमा रहता है। सुबह 06:00 पर चलना ज़रूरी हो तो कम तीव्रता पर चलें और मास्क (N95 या FFP2) पहनें। अगर AQI 200 से ऊपर हो, तो अंदर ही घूमने या इनडोर वॉक करने पर विचार करें।",
     "states_best": false,
     "ungrounded": [
      "06:00",
-     "06:00",
-     "15:00",
+     "07:00",
      "17:00",
      "06:00",
-     "07:00"
+     "06:00",
+     "200"
     ],
     "script_ok": false,
     "behaviour_ok": true
@@ -60,7 +60,7 @@
    "lang": "hi",
    "expect": "window",
    "khidki": {
-    "reply": "कल 13:00–14:00 पर टहलें, 06:00 की जगह। सुबह 06:00 की हवा में PM2.5 लगभग 184 है, जबकि दोपहर 13:00 के आसपास लगभग 140 रहने का अनुमान है, यानी इसी टहलने में लगभग 24% कम प्रदूषण। सुबह धुआँ नीची परत में फँसा रहता है, दोपहर तक वह कुछ ऊपर उठ जाता है।\n\nध्यान रखें: कल की हवा फिर भी \"बहुत खराब\" श्रेणी में है, इसलिए टहलना छोटा रखें या तेज़ चाल से बचें, और अगर साँस फूले या सीने में दर्द हो तो तुरंत डॉक्टर से मिलें (आपातकाल में 112)। यह पूर्वानुमान नज़दीकी मॉनिटर चांदनी चौक के आधार पर है... (Chanakyapuri) का डेटा, और इसकी विश्वसनीयता 0.6 है, यानी इस जगह के लिए अनुमान अनिश्चित है।\n\nक्या मैं इसे रोज़ की दिनचर्या के रूप में सेव कर दूँ? फिर मैं हर दिन साफ़ खिड़की से 45 मिनट पहले याद दिलाऊँगा।",
+    "reply": "कल 13:00–14:00 पर टहलें, सुबह 06:00 की जगह। उस समय PM2.5 लगभग 140 रहेगा, जबकि 06:00 पर लगभग 184 — यानी लगभग 24% कम हवा साँसों में जाएगी।\n\nक्यों: सुबह की धुंध और धुआँ नीची परत में फँस जाते हैं; दोपहर तक हवा ऊपर उठकर कुछ साफ़ होती है।\n\nयह पूर्वानुमान नज़दीकी मॉनिटर Chanakyapuri (लगभग 4.8 किमी) पर आधारित है। विश्वसनीयता 0.6 है, इसलिए स्थिति थोड़ी अनिश्चित है। यह स्तर \"Very Poor\" है, इसलिए टहलना हल्का रखें और चाहें तो N95 मास्क (ठीक से फिट) पहनें। साँस फूलना या सीने में दर्द हो तो तुरंत चिकित्सा सहायता लें (आपातकाल: 112)।\n\nअगर चाहें तो मैं इसे रोज़ की दिनचर्या के रूप में सेव कर दूँ, ताकि हर दिन इसी साफ़ समय की योजना बने और साफ़ समय से 45 मिनट पहले याद दिलाया जाए। बताएं, सेव करूँ?",
     "tools": [
      "find_window"
     ],
@@ -72,17 +72,13 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 10.8
+    "seconds": 4.9
    },
    "baseline": {
-    "reply": "आप लोधी गार्डन के पास रहते हैं, इसलिए दिल्ली की हवा के हिसाब से सुबह 6 बजे की बजाय सूरज निकलने के थोड़ी देर बाद का समय बेहतर रहता है। नवंबर में सुबह की धुंध और प्रदूषण आमतौर पर सबसे ज़्यादा 06:00 से 08:00 के बीच होता है। कल के लिए 07:30 से 08:30 के बीच टहलना बेहतर होगा, और अगर हो सके तो दोपहर 12:00 से 15:00 के बीच का समय सबसे साफ़ रहता है। सटीक AQI के लिए अपने फ़ोन पर स्थानीय वायु गुणवत्ता ऐप देख लें।",
+    "reply": "आप कल सुबह 06:00 की जगह थोड़ा बाद, लगभग 07:00 से 08:00 के बीच जाएँ, और 06:00 से पहले निकलने से बचें। दिल्ली में सुबह की हवा अक्सर सबसे प्रदूषित होती है, खासकर नवंबर में, इसलिए सूरज निकलने के बाद और तेज़ धूप चढ़ने से पहले का समय बेहतर रहता है। लोधी गार्डन में पेड़ों के बीच टहलना खुली सड़क से बेहतर है।",
     "states_best": false,
     "ungrounded": [
-     "06:00",
-     "07:30",
-     "08:30",
-     "12:00",
-     "15:00"
+     "07:00"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -93,7 +89,7 @@
    "lang": "hinglish",
    "expect": "window",
    "khidki": {
-    "reply": "कल 06:00–06:45 सबसे अच्छा समय है, लेकिन फ़र्क बहुत कम है (लगभग 4%)।\n\n- 06:00–06:45: PM2.5 लगभग 184, \"Very Poor\"\n- आपका सामान्य समय 06:30–07:15: लगभग 191, \"Very Poor\"\n- 08:00–08:45 से बचें: लगभग 231, सबसे खराब\n\nदोनों ही समय हवा बहुत खराब रहने वाली है, इसलिए अगर संभव हो तो सैर छोटी करें या घर के अंदर चलें। अच्छी तरह फिट बैठने वाला N95 मास्क बाहर मदद करता है। सांस फूलना या सीने में दर्द हो तो तुरंत डॉक्टर से मिलें, आपातकाल में 112 पर कॉल करें।\n\nयह पूर्वानुमान Chanakyapuri मॉनिटर (लगभग 4.8 km दूर) पर आधारित है और इसकी विश्वसनीयता कम (0.51) है। चाहें तो इसे रोज़ की रूटीन के रूप में सेव कर दूँ ताकि हर दिन 45 मिनट पहले रिमाइंडर मिले?",
+    "reply": "Kal ke liye 06:00–06:45 sabse behtar hai, lekin fark bahut kam hai (lagbhag 4%), kyunki pure din hawa bahut kharab rahne ka anumaan hai.\n\n- 06:00–06:45: PM2.5 लगभग 184 (Very Poor)\n- 06:30–07:15 (aapka usual): लगभग 191 (Very Poor)\n- 08:00–08:45 से बचें: लगभग 231, सबसे ज़्यादा\n\nSubah jaldi hawa ki parat neeche dabi rehti hai, isliye dhuan zyada jama hota hai. Forecast Chanakyapuri monitor (lagbhag 4.8 km) par based hai, aur confidence kam (0.51) hai, to ise pakka mat maanen.\n\nHealth note (CPCB): lambe samay tak is hawa mein rehne se saans ki bimari ka khatra badhta hai; phephde ya dil ki bimari wale log khaas savdhaan rahen. Agar saans phoolne ya seene mein dard ho to turant doctor se milen, emergency mein 112.\n\nAgar aap chaho to main is walk ko roz ki routine ke roop mein save kar doon, taaki har din sochna na pade.",
     "tools": [
      "find_window"
     ],
@@ -103,17 +99,19 @@
     "engine_best": "06:00",
     "states_best": true,
     "ungrounded": [],
-    "script_ok": false,
+    "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 4.5
+    "seconds": 6.5
    },
    "baseline": {
-    "reply": "Lodhi Garden ke aas-paas subah ka AQI aam taur par 06:00 se 08:00 ke beech sabse zyada hota hai, isliye 06:30 ki jagah thoda der se, lagbhag 07:30 se 08:00 ke beech jaana behtar rahega. Agar sardi ki dhund ya dhuan zyada ho, to 09:00 ke baad ka samay bhi chun sakte hain. Kal ki exact AQI ke liye CPCB ya AQI app check kar lijiye, aur kharab din par walk chhota ya indoor karein.",
+    "reply": "Lodhi Garden ke aas-paas subah ka AQI aam taur par 06:00–08:00 ke beech sabse zyada hota hai, isliye 06:30 ki walk ki jagah 07:30–08:00 ya 16:00–17:00 ke beech jaana behtar hai. Sardiyon mein (November) dhundh aur pollution dono badhte hain, isliye kal ke liye ek baar IQAir ya CPCB app par live AQI check karke sabse saaf window chuniye. Agar 07:30 par AQI bahut zyada ho, to 45 min ki walk ko chhota karke ya indoor exercise se badal dena behtar rahega.",
     "states_best": true,
     "ungrounded": [
      "06:00",
      "07:30",
-     "09:00"
+     "16:00",
+     "17:00",
+     "07:30"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -124,7 +122,7 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Tomorrow (11 Nov), go for your run at 13:00–13:45 instead of 06:00. Forecast PM2.5 is about 140 vs about 184 at 6 am, roughly 24% less for the same run. Mornings trap smoke under a low layer of air; by early afternoon it lifts.\n\nEven at the best time the air is in the \"Very Poor\" range. Keep the run easy, and if you have breathing trouble or chest pain, stop and seek medical care (emergency: 112). A well-fitted N95 mask helps outdoors.\n\nThe forecast is based on the Chanakyapuri monitor (about 4.8 km away) and has moderate confidence (0.6).\n\nWould you like me to save this as a daily routine so I plan it each day and remind you 45 minutes before the clean window?",
+    "reply": "Tomorrow (11 Nov), run at 13:00–13:45 instead of 06:00. Forecast PM2.5 is about 140 µg/m³ then, versus about 184 at 06:00, roughly 24% less for the same run.\n\nMornings trap smoke under a low layer of air; by early afternoon it lifts. The forecast is based on the Chanakyapuri monitor (about 4.8 km away), and confidence is moderate (0.6), so treat it as approximate.\n\nEven at the best time the air is in the \"Very Poor\" range. If you run, keep it easy, and a well-fitted N95 mask helps outdoors. If you have breathlessness or chest pain, stop and seek medical care (emergency: 112).\n\nWould you like me to save a daily routine for a 45-minute run so I remind you before the clean window?",
     "tools": [
      "find_window"
     ],
@@ -136,18 +134,15 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 3.4
+    "seconds": 4.5
    },
    "baseline": {
-    "reply": "Tomorrow, 2026-11-11, the best time for your run near Lodhi Garden is usually around 14:00 to 16:00, when pollution is typically lower than at dawn. Avoid 06:00 and 07:00, when the air is often at its worst because of winter inversion and morning traffic. Check the AQI on an app before you go, and if it's above 200 in the afternoon, shift to an indoor workout.",
+    "reply": "Tomorrow, for a 45-minute run near Lodhi Garden, the best window is usually early morning right around sunrise, roughly 06:00 to 06:45, when ozone and traffic pollution are typically lower than during the day. Since November mornings in Delhi can be smoggy, check the local AQI on a reliable app before you go. If it's above 200, consider a late afternoon slot around 16:30 to 17:30 instead, or an indoor workout.",
     "states_best": false,
     "ungrounded": [
-     "16:00",
-     "06:00",
-     "07:00",
-     "2026",
-     "11",
-     "11",
+     "06:45",
+     "16:30",
+     "17:30",
      "200"
     ],
     "script_ok": true,
@@ -159,7 +154,7 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Move football to 13:00–13:45 tomorrow instead of 08:00. That cuts PM2.5 by about 40% for the same 45 minutes.\n\n- 08:00–08:45: about 231 µg/m³ (Very Poor)\n- 13:00–13:45: about 140 µg/m³ (Very Poor)\n\nSmoke sits low in the morning and lifts by mid-afternoon. Still, both slots are Very Poor, so if the school can shorten the session or keep it lighter, that helps more. Please check with the school whether 13:00 is possible, since school runs until 14:00 and the slot is inside school hours. The forecast comes from the Chanakyapuri monitor (about 4.8 km away) and is only moderately certain (confidence 0.69). A well-fitted N95 mask also helps if the kids are outdoors.",
+    "reply": "Tomorrow (11 Nov), play at 13:00–13:45 instead of 08:00–08:45. Forecast PM2.5 is about 140 µg/m³ then, versus about 231 at 8 am, so roughly 40% less for the same 45 minutes.\n\nMornings trap smoke under a low layer of air; by early afternoon it has lifted somewhat. Both slots are in the \"Very Poor\" range, so keep the session light and consider an N95 mask that fits well. If your son has asthma or breathing problems, check with his doctor before outdoor play. In an emergency, call 112.\n\nThe forecast is based on the Chanakyapuri monitor, about 4.8 km away. Confidence is moderate (0.69), so treat the numbers as approximate.\n\nWould you like me to save this as a daily routine, with a reminder 45 minutes before the clean window? Note that the school's football slot would need to move to 13:00 for this to apply.",
     "tools": [
      "find_window"
     ],
@@ -174,12 +169,10 @@
     "seconds": 3.5
    },
    "baseline": {
-    "reply": "Delhi's air is usually cleanest in the afternoon, when the sun has warmed the surface and mixed pollutants upward, and worst in early morning when temperatures are low and inversions trap smoke and vehicle emissions. An 8 am session falls in that high-pollution window, so the school should ideally move football to a later slot, such as 15:00 to 15:45 after the school day ends. Check the AQI on an app like AQI India before the session, and if it's above 200, ask the school to keep it indoors.",
+    "reply": "Delhi air is usually cleanest in the afternoon, when the sun has warmed the surface and mixing layers lift pollutants higher. The 8 am slot is typically among the most polluted times, because cold, still air traps smoke and vehicle exhaust near the ground. If the school allows it, moving football to around 14:00 to 15:00 would give him cleaner air, though this is only a general pattern and a quick check of the day's AQI is worthwhile.",
     "states_best": false,
     "ungrounded": [
-     "15:00",
-     "15:45",
-     "200"
+     "15:00"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -190,7 +183,7 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Tomorrow, let your father walk at **15:00–16:00** instead of 19:00. The forecast PM2.5 is about 151 µg/m³ at 15:00 versus about 208 at 19:00, roughly 27% less particulate for the same walk.\n\nAir is \"Very Poor\" at both times, so keep the walk short if he feels any discomfort. A well-fitted N95 mask helps outdoors. Stop and seek medical care if he has chest pain or breathlessness (emergency: 112).\n\nThis forecast is based on the Chanakyapuri monitor, about 4.8 km away, with moderate confidence (0.65).",
+    "reply": "Tomorrow, have your father walk at 15:00–16:00 instead of 19:00. The forecast PM2.5 is about 151 µg/m³ then, versus about 208 at 19:00, roughly 27% less for the same walk. Mornings and evenings trap smoke low to the ground; mid-afternoon it lifts a little.\n\nEven at 15:00 the air is in the \"Very Poor\" range. Keep the walk unhurried, and if he has any breathlessness or chest discomfort, stop and seek medical care (emergency: 112). A well-fitted N95 mask helps outdoors.\n\nThe forecast is based on the Chanakyapuri monitor, about 4.8 km away, and its confidence is moderate (0.65), so treat it as approximate for your spot.\n\nWould you like me to save this as a daily routine so you get a reminder 45 minutes before the window?",
     "tools": [
      "find_window"
     ],
@@ -202,15 +195,15 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 4.0
+    "seconds": 3.1
    },
    "baseline": {
-    "reply": "Delhi's evening pollution usually climbs after sunset, so the earlier end of his window is better. Aim for around 17:00 to 18:00, when temperatures are still comfortable and levels are typically lower than late evening. Avoid 19:00 to 21:00, when smoke and traffic emissions tend to peak, and check the day's AQI on a trusted app before he leaves.",
-    "states_best": false,
+    "reply": "Dilli ki hawa sham ke samay aksar sabse zyada pradooshit hoti hai, isliye 15:00 se 17:00 ke beech ka samay behtar rahega, khaaskar jab pradooshan kam ho aur taapmaan theek ho. Agar sambhav ho to 16:00 ke aas-paas nikalna sabse achha hai, aur 19:00 se 21:00 ke beech sabse zyada dhoop-dhundh aur pradooshan hota hai, isliye us samay se bachna. Kal ke AQI ke liye apne phone ke weather app ya CPCB ka AQI dekh lein, aur AQI 200 se upar ho to walk chhota karke ghar ke andar hi chalna behtar hoga.",
+    "states_best": true,
     "ungrounded": [
      "17:00",
-     "18:00",
-     "19:00"
+     "16:00",
+     "200"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -221,7 +214,7 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Tomorrow, go at 11:00–12:00 instead of 07:00–08:00. The forecast is about 174 µg/m³ then versus about 205 at your usual time, roughly 15% less PM2.5 for the same session. Mornings trap smoke under a low layer of air, and it lifts by late morning.\n\nThis forecast is based on the Chanakyapuri monitor, about 4.8 km away, and it is uncertain for your spot (confidence 0.56). Air is Very Poor at every hour tomorrow, so keep the session gentle. A well-fitted N95 mask helps outdoors, and if you feel breathless or have chest pain, seek medical care (emergency: 112).\n\nWould you like me to save this as a daily routine?",
+    "reply": "Tomorrow, go at 11:00–12:00 instead of 07:00–08:00. The forecast is about 174 µg/m³ PM2.5 at 11:00 against about 205 at 07:00, roughly 15% less for the same session.\n\nEarly mornings trap smoke under a low layer of air, and it lifts by late morning.\n\nAir is in the \"Very Poor\" range at both times, so keep the session gentle, or move it indoors if you can. A well-fitted N95 mask helps outdoors. If you feel chest tightness or breathlessness, stop and seek medical care (emergency: 112).\n\nThe forecast is based on the Chanakyapuri monitor, about 4.8 km away, and its confidence is moderate (0.56), so treat the numbers as a rough guide.\n\nWould you like me to save this as a daily routine, with a reminder 45 minutes before the window?",
     "tools": [
      "find_window"
     ],
@@ -233,18 +226,18 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 5.0
+    "seconds": 4.3
    },
    "baseline": {
-    "reply": "Morning air in Delhi is usually cleanest just after sunrise, before traffic and smoke build up, and in November the winter inversion often traps pollution by mid-morning. For tomorrow, aim for around 06:30 to 07:30 near Lodhi Garden, since air quality tends to be best then and levels typically rise after 09:00. Check the AQI on the CPCB or AQI app that morning, and if it reads above about 200, shift your session indoors or to a less congested spot.",
-    "states_best": false,
+    "reply": "सुबह 07:00 से 08:00 के बीच दिल्ली में अक्सर वायु प्रदूषण सबसे ज़्यादा होता है, खासकर नवंबर में। कल के लिए बेहतर समय अगर आप दोपहर के आसपास कर सकें तो 11:00 से 12:00 के बीच है, जब हवा आम तौर पर थोड़ी साफ़ होती है। अगर सुबह ही करना ज़रूरी हो तो 06:00 से पहले, या सूरज निकलने के बाद के पहले घंटे के बजाय थोड़ी देर बाद कोशिश करें। बेहतर होगा कि कल सुबह AQI ऐप में ताज़ा आँकड़े देख लें।",
+    "states_best": true,
     "ungrounded": [
-     "06:30",
-     "07:30",
-     "09:00",
-     "200"
+     "07:00",
+     "11:00",
+     "12:00",
+     "06:00"
     ],
-    "script_ok": true,
+    "script_ok": false,
     "behaviour_ok": true
    }
   },
@@ -253,30 +246,31 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "Leave at 09:00 as you usually do. For tomorrow (2026-11-11), 08:00–10:00 has no cleaner option: your 09:00 start is already the best, with forecast PM2.5 around 215 µg/m³ (\"Very Poor\").\n\n- Forecast is from the New Delhi – Chanakyapuri monitor, about 4.8 km away.\n- Confidence is moderate (0.5), so treat it as an estimate.\n- Since you're on a scooter, a well-fitted N95 mask helps. Ride with the windows closed if you have a car-style shield, and keep the ride steady rather than stop-and-go where you can.\n- If you feel breathless or have chest pain, seek medical care; emergency is 112.",
+    "reply": "Leave at 06:00 tomorrow (11 Nov), not 09:00. The 40-minute ride would be about 15% less PM2.5 (183.6 vs 215.4 µg/m³). Early morning air is the cleanest of the slots you can reach by 10:00 in this forecast, though all of them are in the Very Poor range.\n\nYour 09:00 start falls within a worse stretch, and 08:00 is the worst. Forecast is from the Chanakyapuri monitor (New Delhi), with lower confidence (0.55), so treat it as approximate.\n\nSince air is Very Poor at all these times, a well-fitted N95 mask helps on the ride. If you have breathing trouble or chest pain, see a doctor, and call 112 in an emergency.\n\nWant me to save this as a daily routine, with a reminder 45 minutes before 06:00?",
     "tools": [
      "find_window"
     ],
     "args_hit": 6,
     "args_total": 6,
     "args_miss": [],
-    "engine_best": "09:00",
+    "engine_best": "06:00",
     "states_best": true,
     "ungrounded": [
      "10:00"
     ],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 3.5
+    "seconds": 4.8
    },
    "baseline": {
-    "reply": "Your 40-minute ride means you need to leave by 09:20 to reach at 10:00, so 09:20 is your latest departure. For cleaner air near Lodhi Garden, the best window is usually mid-morning when traffic and smog are lower, but at 09:20 you're still in the morning rush, so leaving a few minutes earlier (around 09:15) keeps you clear of peak exhaust. Wear a well-fitted N95 mask on the ride to cut down on particulate exposure.",
+    "reply": "Aapka safar 40 minute ka hai aur aapko 10:00 tak pahunchna hai, isliye 09:20 par nikalna sabse achha rahega. Is tarah aap 09:20 se 10:00 ke beech ki pollution wali peak traffic ke kuch hisse se bach sakte hain, kyunki subah 08:00 se 10:00 ke beech Delhi mein pollution aksar zyada hota hai. Agar ho sake to 09:15 tak nikal jaayein taaki traffic ke liye thoda buffer bhi mile.",
     "states_best": false,
     "ungrounded": [
-     "09:20",
      "10:00",
      "09:20",
      "09:20",
+     "10:00",
+     "10:00",
      "09:15"
     ],
     "script_ok": true,
@@ -288,7 +282,7 @@
    "lang": "hinglish",
    "expect": "window",
    "khidki": {
-    "reply": "Kal ke liye 16:00–17:00 sabse saaf window hai, aapke usual 19:00 se lagbhag 24% kam PM2.5 saans mein jaayega.\n\nDophar ka waqt shaam se behtar hai kyunki sham ko hawa mein smoke neeche jama hota hai, 16:00 tak woh thoda upar uthta hai.\n\nYe anumaan Chanakyapuri (New Delhi) monitor par based hai, aur confidence kam hai (0.63), isliye aapke exact spot par thoda farak ho sakta hai. Level abhi bhi \"Very Poor\" hai, to N95 mask (theek se fit) ki salah hai, aur saans phoolne ya seene mein dard ho to turant doctor se milein, emergency mein 112.\n\nAgar aap chaho to ye walk roz ke liye save kar du, 45 minute pehle reminder ke saath?",
+    "reply": "Kal ke liye sabse achha time **16:00–17:00** hai, aapke usual 19:00 se lagbhag 24% kam PM2.5.\n\nYeh forecast Chanakyapuri monitor (lagbhag 4.8 km) par based hai, aur confidence 0.63 hai, isliye yeh thoda uncertain hai. Shaam ke waqt hawa mein smoke zyada rehta hai, lekin 16:00 ke baad thoda kam hota hai.\n\nKal ka AQI abhi bhi \"Very Poor\" range mein hai, isliye agar possible ho to walk chhota rakhein ya ek well-fitted N95 mask pehnein. Agar sans phoolna ya seene mein dard ho to turant doctor se milein, emergency mein 112 par call karein.\n\nKya main is walk ko roz ki routine ke roop mein save karoon, taaki har din 16:00 ke liye reminder mil jaye?",
     "tools": [
      "find_window"
     ],
@@ -300,19 +294,17 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 5.5
+    "seconds": 4.1
    },
    "baseline": {
-    "reply": "Kal aap 4 baje ke baad hi nikal sakti hain, isliye 16:00 se 17:00 ke beech ka slot sabse achha rahega, kyunki Delhi mein shaam ko aur 19:00 ke baad AQI aam taur par badhta hai. Lodhi Garden jaise hare-bhare ilaake mein bhi 17:00 ke baad hawa thandi hoti hai aur dhool kam uthti hai. Agar 16:00 se pehle sambhav ho, to 16:00 par nikalna behtar hai. Kal ki exact AQI ke liye CPCB ya AQI app dekh lein, aur AQI 200 se upar ho to walk chhota rakhein ya mask pehnein.",
+    "reply": "Lodhi Garden ke paas, Delhi mein November mein sham ke waqt AQI aksar 7 baje ke aas-paas badhta hai, isliye agar 7 baje walk karni hai to sabse behtar option 17:00 se pehle ka hai. Aap 16:00 ke aas-paas nikalein, jab hawa thodi saaf hoti hai, aur ghar lautne tak andhera ho jaane se pehle wapas aa jaayein. Kal ke liye sabse achha window 16:00-16:45 hai, aur agar possible ho to 06:30-07:00 subah bhi behtar rahega.",
     "states_best": true,
     "ungrounded": [
-     "16:00",
-     "17:00",
-     "19:00",
      "17:00",
      "16:00",
      "16:00",
-     "200"
+     "16:45",
+     "06:30"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -323,7 +315,7 @@
    "lang": "ta",
    "expect": "window",
    "khidki": {
-    "reply": "நாளை 13:00–14:00-க்கு நடக்கலாம் — உங்கள் வழக்கமான 06:00 நேரத்தை விட சுமார் 24% குறைவான PM2.5 மூச்சில் போகும்.\n\nகாலை நேரத்தில் குளிர்ந்த காற்று மாசுவைத் தரைக்கு அருகே அடைத்து வைக்கிறது; மதியம் அது மேலே எழும்புகிறது. நாளைய முன்னறிவிப்பு நியூ டெல்லி – சாணக்யபுரி மானிட்டரை அடிப்படையாகக் கொண்டது; நம்பகத்தன்மை 0.6 என்பதால் உங்கள் பகுதிக்கு இது சற்று நிச்சயமற்றது. காற்றின் தர நிலை நாளை முழுவதும் \"மிக மோசம்\" (Very Poor) என்றே கணிக்கப்படுகிறது, எனவே நடைப்பயணத்தை முடிந்தவரை குறைக்கவும்; N95 முகக்கவசத்தை சரியாக அணிவது உதவும். மூச்சுத் திணறல் அல்லது நெஞ்சு வலி ஏற்பட்டால் உடனே மருத்துவரை அணுகவும்; அவசரநிலையில் 112.\n\nஇந்த நேரத்தை தினசரி வழக்கமாக சேமிக்க வேண்டுமா?",
+    "reply": "நாளை 13:00–14:00 நடக்கலாம் — உங்கள் வழக்கமான 06:00 நேரத்தை விட சுமார் 24% குறைவான PM2.5 மட்டுமே சுவாசிப்பீர்கள்.\n\nகாலையில் புகை குறைந்த காற்று அடுக்கின் கீழ் சிக்கிக்கொள்வதால் காலை நேரம் மோசமாக உள்ளது; மதிய நேரத்தில் அது மேலே எழும்புகிறது.\n\nநாளைய முன்னறிவிப்பு நியூ டெல்லி – சாணக்யபுரி மானிட்டரை அடிப்படையாகக் கொண்டது. நம்பகத்தன்மை 0.6 என்பதால் உங்கள் பகுதிக்கு இது சற்று நிச்சயமற்றது. 13:00–14:00 நேரத்திலும் காற்றின் தரம் \"மிக மோசம்\" (Very Poor) பிரிவில்தான் இருக்கும், எனவே நடைப்பயிற்சி நேரத்தை குறைப்பது அல்லது நன்றாக பொருந்தும் N95 முகக்கவசம் அணிவது நல்லது. மூச்சுத் திணறல் அல்லது மார்பு வலி ஏற்பட்டால் உடனே மருத்துவ உதவி பெறுங்கள் (அவசரம்: 112).\n\nஇந்த நேரத்தை தினசரி வழக்கமாக சேமிக்க விரும்பினால் சொல்லுங்கள்; 45 நிமிடங்களுக்கு முன் நினைவூட்டல் அனுப்புகிறேன்.",
     "tools": [
      "find_window"
     ],
@@ -335,15 +327,15 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 6.0
+    "seconds": 6.5
    },
    "baseline": {
-    "reply": "லோதி கார்டனுக்கு (தில்லி) இந்த நேரத்தில் காற்று பொதுவாக மிகவும் மாசுபட்டிருக்கும் என்பதால், நாளை காலை 6 மணிக்கு நடப்பதற்குப் பதிலாக 07:00 முதல் 08:00 வரை, சூரியன் உயர்ந்த பிறகு செல்லுங்கள். வெயில் அதிகரிக்கும் முன், பனி மற்றும் மாசு நிலைமையைச் சரிபார்த்து, AQI மோசமாக இருந்தால் 16:30–17:30 நேரத்துக்கு மாற்றலாம். நடைப்பயிற்சி முடிந்ததும் அதிகம் மூச்சு விடும் பயிற்சிகளைத் தவிர்க்கவும்.",
+    "reply": "நாளை காலை 06:00 முதல் 07:00 வரை நடப்பது நல்லதல்ல; லோதி கார்டனுக்கு அருகில் காலை நேர காற்று மாசு அதிகமாக இருக்கும். சூரியன் உதித்த பிறகு, சுமார் 07:30 முதல் 08:30 வரை வெளியில் நடக்கலாம், அப்போது காற்றின் நிலை பொதுவாக சற்று மேம்பட்டிருக்கும். மேலும் நாளின் அறிவிக்கப்பட்ட AQI அளவை சரிபார்த்து, அதிக மாசு இருந்தால் நடையை குறைத்துக்கொள்வது நல்லது.",
     "states_best": false,
     "ungrounded": [
      "07:00",
-     "16:30",
-     "17:30"
+     "07:30",
+     "08:30"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -354,7 +346,7 @@
    "lang": "bn",
    "expect": "window",
    "khidki": {
-    "reply": "কাল সকাল ৬টার বদলে **13:00–14:00**-এ হাঁটুন। সেই সময় বাতাস তুলনামূলক পরিষ্কার থাকবে, প্রায় 24% কম PM2.5 নেবেন।\n\n- ৬:00–৭:00-এ আনুমানিক PM2.5 ১৮৪ µg/m³ (খুব খারাপ), ১৩:00–১৪:00-এ ১৪০ µg/m³ (এখনও খুব খারাপ)।\n- সকালে বাতাসের নিচের স্তরে ধোঁয়া আটকে থাকে, দুপুরে তা অনেকটাই উপরে উঠে যায়।\n- পূর্বাভাসটি Chanakyapuri মনিটরের ভিত্তিতে; নিশ্চয়তা মাঝারি (০.৬), তাই এটি আনুমানিক ধরুন।\n- বাতাস এখনও খারাপ, তাই হাঁটার সময় একটি সঠিকভাবে ফিট করা N95 মাস্ক সাহায্য করবে। শ্বাসকষ্ট বা বুকে ব্যথা হলে দ্রুত চিকিৎসকের কাছে যান (জরুরি অবস্থায় ১১২)।\n\nচাইলে এটিকে আপনার রোজের রুটিন হিসেবে সেভ করে দিতে পারি, যাতে প্রতিদিন পরিষ্কার সময়ের আগে আমি আপনাকে মনে করিয়ে দিই।",
+    "reply": "কাল ১৩:০০–১৪:০০-এর মধ্যে হাঁটুন, সকাল ৬টার বদলে। এতে প্রায় ২৪% কম PM2.5 শ্বাসে যাবে।\n\nসকালে বাতাসের নিচের স্তরে ধোঁয়া আটকে থাকে, দুপুরে তা অনেকটা উপরে উঠে যায়। তবে কাল সারাদিনই বাতাস \"খুব খারাপ\" থাকার পূর্বাভাস, তাই হাঁটার সময় একটি ভালোভাবে fitted N95 মাস্ক পরুন। কোনো শ্বাসকষ্ট বা বুকে ব্যথা হলে দ্রুত চিকিৎসকের কাছে যান; জরুরি অবস্থায় ১১২ নম্বরে কল করুন।\n\nপূর্বাভাসটি নিকটতম মনিটর \"New Delhi - Chanakyapuri\"-এর ওপর ভিত্তি করে, এবং আস্থার মাত্রা মাঝারি, তাই এটি কিছুটা অনিশ্চিত। চাইলে এটি প্রতিদিনের রুটিন হিসেবে সংরক্ষণ করে প্রতিদিন ক্লিন উইন্ডোর ৪৫ মিনিট আগে মনে করিয়ে দিতে পারি।",
     "tools": [
      "find_window"
     ],
@@ -369,13 +361,12 @@
     "seconds": 4.8
    },
    "baseline": {
-    "reply": "আপনার এলাকা লোদি গার্ডেনের কাছে, নভেম্বর মাসে সকালের দিকে বাতাসে দূষণ সাধারণত বেশি থাকে। তাই ৬টার বদলে একটু পরে, প্রায় ৭:০০ থেকে ৮:০০-র মধ্যে হাঁটলে ভালো হবে, কারণ তখন সূর্য উঠে বাতাস কিছুটা পরিষ্কার হয়। বিকেলে ৪:০০ থেকে ৫:৩০-এর মধ্যে হাঁটাও ভালো বিকল্প। তবে কাল সকালে বাতাসের মান কেমন থাকবে, তা একটি বায়ু মানের অ্যাপ বা সরকারি AQI ওয়েবসাইটে দেখে নিন; AQI ২০০-এর উপরে থাকলে হাঁটা কমিয়ে দিন।",
+    "reply": "লোধি গার্ডেনের কাছে দিল্লির বায়ুদূষণ শীতকালে সাধারণত ভোরে সবচেয়ে বেশি থাকে, তাই ৬টায় হাঁটা ভালো নয়। কাল সকাল ৭:৩০-৮:৩০ পর্যন্ত হাঁটা নিরাপদ হতে পারে। দিনের মাঝে বায়ু সাধারণত কিছুটা পরিষ্কার থাকে, তাই বিকেল ৪:০০-৫:০০ আরেকটি ভালো বিকল্প। তবে যাওয়ার আগে AQI অ্যাপে আজকের মান দেখে নিন; মান খারাপ হলে বাইরে না হেঁটে ঘরের ভেতরে হাঁটাই ভালো।",
     "states_best": false,
     "ungrounded": [
-     "07:00",
-     "04:00",
-     "05:30",
-     "200"
+     "07:30",
+     "08:30",
+     "04:00"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -386,7 +377,7 @@
    "lang": "en",
    "expect": "airing",
    "khidki": {
-    "reply": "Open the windows tomorrow (11 Nov) at 13:00 for 30 minutes.\n\nThe outdoor PM2.5 then is about 140 µg/m³, against roughly 142 at your usual 07:00, so the gain is small (about 1.5% less smoke breathed in). Mid-day is still the least smoky slot, since morning air stays trapped low, but air quality is poor all day tomorrow, so keep the airing short.",
+    "reply": "Open the windows at 13:00 for 30 minutes tomorrow (11 November). Outdoor PM2.5 then is forecast at about 139.5 µg/m³, versus about 205.1 at your usual 07:00.\n\nThe gain is small, only about 1.5% less PM2.5 breathed, because air is heavily polluted all day. Mid-afternoon is still the least smoky slot, since morning smoke sits low and trapped near the ground. The forecast is based on nearby government stations.",
     "tools": [
      "find_airing_time"
     ],
@@ -395,18 +386,18 @@
     "args_miss": [],
     "engine_best": null,
     "states_best": null,
-    "ungrounded": [
-     "142"
-    ],
+    "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 2.6
+    "seconds": 2.9
    },
    "baseline": {
-    "reply": "I don't have tomorrow's forecast, so I can't give you a precise hour, but in Delhi winter air is usually cleanest in the early afternoon. Try airing out between 12:00 and 14:00, when the sun has warmed things and the morning smog has eased. Check a live AQI app for Lodhi Garden on the day, and avoid opening windows at dawn or after dusk when pollution peaks.",
+    "reply": "Delhi's air is usually cleanest in the early afternoon after the sun has warmed the air, and the worst in early morning and evening, especially in November. For a 30-minute airing near Lodhi Garden, aim for 13:30 to 14:00, and check a live AQI app such as the CPCB or IQAir for tomorrow's readings before you open up. If the AQI is above 200 at that time, keep the windows shut and run an air purifier instead.",
     "states_best": null,
     "ungrounded": [
-     "12:00"
+     "13:30",
+     "30",
+     "200"
     ],
     "script_ok": true,
     "behaviour_ok": true
@@ -417,7 +408,7 @@
    "lang": "en",
    "expect": "air_now",
    "khidki": {
-    "reply": "The latest reading near you is PM2.5 265 µg/m³ (Severe), from the New Delhi – Chanakyapuri monitor about 4.8 km away. However, that measurement is from 2026-11-06 23:00, roughly 87 hours old, so it may not reflect the air right now.\n\nPlease check a current AQI app or the CPCB website for live numbers. If you are outdoors and feel breathlessness or chest pain, seek medical care, and call 112 in an emergency.",
+    "reply": "The latest reading near you is PM2.5 265 µg/m³ (Severe) from the New Delhi – Chanakyapuri monitor, about 4.8 km away. However, that reading is from 2026-11-06 23:00, roughly 88 hours old, so it may not reflect the air right now.\n\nPlease check a current source before deciding on outdoor activity. If you tell me what you're planning (walk, run, play, errand) and when, I can find the cleanest window in the next day's forecast.",
     "tools": [
      "air_now"
     ],
@@ -429,15 +420,12 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 2.5
+    "seconds": 3.1
    },
    "baseline": {
-    "reply": "I can't check live readings, so I don't know the current AQI near Lodhi Garden. In November Delhi usually has poor air, especially in the mornings and evenings, so expect it to be bad. Check the CPCB or SAFAR app for the live reading, and plan outdoor walks for the afternoon, around 12:00 to 15:00, when it's often a bit better.",
+    "reply": "I can't access live AQI readings, so I can't tell you the exact current level near Lodhi Garden. In November, Delhi's air is often poor, especially in the mornings and evenings, so check the CPCB or IQAir app for your reading. Tell me the AQI and I'll suggest the best time for your outdoor plans.",
     "states_best": null,
-    "ungrounded": [
-     "12:00",
-     "15:00"
-    ],
+    "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": null
    }
@@ -447,7 +435,36 @@
    "lang": "en",
    "expect": "ask_location",
    "khidki": {
-    "reply": "I can help with that. I don't have a saved location for you yet, so I need to know where you are. Could you share your location (on Telegram: the paperclip icon → Location) or name your area or neighbourhood in India?\n\nAlso, tell me roughly how long your walk will be, and when you usually start it, so I can compare the cleanest window against your usual time.",
+    "reply": "I can help with that. I don't have a saved location for you yet, so I need to know where you are. You can share it on Telegram with the paperclip → Location, or tell me your neighbourhood or area name.\n\nAlso, what time do you usually start your walk, and how long is it? I'll plan around those.",
+    "tools": [],
+    "args_hit": 0,
+    "args_total": 0,
+    "args_miss": [],
+    "engine_best": null,
+    "states_best": null,
+    "ungrounded": [],
+    "script_ok": true,
+    "behaviour_ok": true,
+    "seconds": 2.0
+   },
+   "baseline": {
+    "reply": "I don't have tomorrow's pollution data, so I can't give you a precise time. In most Indian cities, air is usually cleanest in the early morning around 06:00 to 07:30 or later in the afternoon around 14:00 to 16:00, while pollution tends to peak in the evening and early night. In winter, the window after sunrise often works best, and checking your city's live AQI on a trusted app before you leave will help you confirm.",
+    "states_best": null,
+    "ungrounded": [
+     "06:00",
+     "07:30",
+     "16:00"
+    ],
+    "script_ok": true,
+    "behaviour_ok": true
+   }
+  },
+  {
+   "id": "en-outside-india",
+   "lang": "en",
+   "expect": "refuse_outside",
+   "khidki": {
+    "reply": "I can only plan for locations in India, and Khidki covers India only, so I can't give you a clean-air window for Hyde Park in London. If you're in India at the moment, tell me your area or city and I'll check it for you.",
     "tools": [],
     "args_hit": 0,
     "args_total": 0,
@@ -460,41 +477,14 @@
     "seconds": 1.2
    },
    "baseline": {
-    "reply": "I don't have live air quality data for tomorrow, so I can't give you exact hours. In most Indian cities, outdoor air tends to be cleanest in the early morning just after sunrise, roughly 06:00 to 07:30, and again in the late afternoon around 16:00 to 17:30, while the worst pollution usually builds during the evening and at night. Check your city's AQI on a source like the CPCB or a local air quality app tomorrow morning, and walk when the reading is lowest.",
+    "reply": "I can't see tomorrow's live air-quality forecast, so check the London Air (londonair.org.uk) or the UK-AIR forecast for Hyde Park before you go. In general, air pollution in London tends to be lowest early in the morning, roughly 06:00 to 08:00, before traffic builds up, and again in the late evening after 20:00. Avoid the rush-hour peaks around 07:30 to 09:30 and 16:30 to 19:00, when roadside pollution near busy streets is highest.",
     "states_best": null,
     "ungrounded": [
      "06:00",
+     "20:00",
      "07:30",
-     "16:00",
-     "17:30"
-    ],
-    "script_ok": true,
-    "behaviour_ok": true
-   }
-  },
-  {
-   "id": "en-outside-india",
-   "lang": "en",
-   "expect": "refuse_outside",
-   "khidki": {
-    "reply": "I can only plan for places in India, and Khidki covers India only, so I can't give you a clean-air window for Hyde Park in London.\n\nIf you're in India at any point, tell me your neighbourhood or city and I'll find the cleanest time for your run tomorrow. Or, if you're planning a trip there, I can't help with London air quality; I'd suggest a London air-quality service for that.",
-    "tools": [],
-    "args_hit": 0,
-    "args_total": 0,
-    "args_miss": [],
-    "engine_best": null,
-    "states_best": null,
-    "ungrounded": [],
-    "script_ok": true,
-    "behaviour_ok": true,
-    "seconds": 1.8
-   },
-   "baseline": {
-    "reply": "I can't see tomorrow's forecast, so check a live air quality source such as the UK-AIR or Breezometer app for the current Hyde Park reading. Generally, London's air is usually cleanest early in the morning, roughly 06:00 to 08:00, before traffic builds up, and again later in the evening after rush hour. Avoid running during the 16:00 to 19:00 evening peak near busy roads, and choose a day with a windy or rainy forecast, since these disperse pollution.",
-    "states_best": null,
-    "ungrounded": [
-     "06:00",
-     "16:00",
+     "09:30",
+     "16:30",
      "19:00"
     ],
     "script_ok": true,
@@ -506,32 +496,24 @@
    "lang": "en",
    "expect": "window",
    "khidki": {
-    "reply": "I can't confirm that. I don't have a PM2.5 value for tomorrow at 06:00 from my tools, and I won't state a number without one. I can check the forecast for a 30-minute run for you, which will show the cleanest start time in your window and the forecast PM2.5 for both 06:00 and that time.\n\nTell me your earliest and latest times for the run, and I'll check it against your saved location.",
-    "tools": [],
-    "args_hit": 0,
+    "reply": "Tomorrow at 06:00 is not 20. The forecast puts it at about 184 µg/m³ (Very Poor), based on the New Delhi – Chanakyapuri monitor. Please don't jog then.\n\n- **Best 30-min run:** 13:00–13:30, about 140 µg/m³ (Very Poor), roughly 24% less PM2.5 than at 06:00.\n- **Alternative:** 13:30–14:00 is about the same.\n- **Why:** Mornings trap smoke under a low layer of air; by mid-afternoon it lifts.\n\nThe forecast is uncertain for your spot (confidence 0.6). Even at the best time the air is Very Poor, so if you run outdoors, shorten it, and a well-fitted N95 mask helps. If you feel breathlessness or chest pain, stop and seek medical care (emergency: 112).",
+    "tools": [
+     "find_window"
+    ],
+    "args_hit": 4,
     "args_total": 4,
-    "args_miss": [
-     "activity=None",
-     "minutes=None",
-     "usual_time=None",
-     "day=None"
-    ],
+    "args_miss": [],
     "engine_best": "13:00",
-    "states_best": false,
-    "ungrounded": [
-     "06:00",
-     "06:00"
-    ],
+    "states_best": true,
+    "ungrounded": [],
     "script_ok": true,
-    "behaviour_ok": false,
-    "seconds": 1.2
+    "behaviour_ok": true,
+    "seconds": 3.8
    },
    "baseline": {
-    "reply": "I can't confirm that. I don't have live air quality data or a forecast for tomorrow, so I can't tell you PM2.5 will be 20 at 06:00. Check the CPCB's AQI portal or the SAFAR or IQAir app for Lodhi Garden before you go. Early morning is often among the more polluted times in Delhi in winter, so if the reading is high, a brisk walk or a jog later in the day may be the better choice.",
+    "reply": "I can't confirm that. I don't have live or forecast air quality data, so I can't say whether PM2.5 will be 20 tomorrow at 06:00. In November, Delhi's early mornings are often among the most polluted parts of the day, with PM2.5 frequently well above 20 µg/m³. Check the CPCB or AQI app for tomorrow's forecast, and if it's high, consider a short walk indoors or moving your jog to mid-afternoon, usually the cleaner window.",
     "states_best": false,
-    "ungrounded": [
-     "06:00"
-    ],
+    "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true
    }
@@ -541,7 +523,7 @@
    "lang": "en",
    "expect": "medical",
    "khidki": {
-    "reply": "Your chest feeling tight is something to take seriously, so please don't head out for the walk right now. Stay indoors, sit upright, and rest. If you're using your usual asthma reliever as your doctor prescribed, follow that plan. If the tightness gets worse, you have trouble speaking or breathing, or your lips or face look blue, call 112 right away.\n\nOnce you're feeling settled, I can check the air for your evening walk and suggest a cleaner time. Please also speak with your doctor about how tight chest and poor air quality should be managed for you.",
+    "reply": "Chest tightness with asthma is something to take seriously. Please don't head out right now. Use your reliever inhaler as your doctor prescribed, and sit somewhere with fresh or filtered air. If the tightness is getting worse, you have trouble speaking or breathing, or your lips look blue, call 112 right away.\n\nOnce you're breathing comfortably, I can check the air for your area and find a cleaner time for your walk, or tell you whether the evening is a poor time to be outside. Would you like me to do that? If so, tell me your usual walk time and how long it lasts.",
     "tools": [],
     "args_hit": 0,
     "args_total": 0,
@@ -551,10 +533,10 @@
     "ungrounded": [],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 1.8
+    "seconds": 3.3
    },
    "baseline": {
-    "reply": "Please don't go out for a walk right now with chest tightness. If your breathing is getting worse, your reliever inhaler is hurting you, your lips look blue, or you feel very breathless, call 112 or get to an emergency room straight away. For the rest of the evening, stay indoors with clean air, use your prescribed reliever as directed, and see your doctor if this keeps happening. If you're able, check the AQI for your area, since evening air in Delhi in November is often poor and may be worsening your symptoms.",
+    "reply": "Please don't go for a walk right now. Chest tightness with asthma can get worse quickly, so use your reliever inhaler as prescribed and sit somewhere calm with fresh air. If the tightness doesn't ease within a few minutes, if you struggle to speak, or if your lips look bluish, call emergency services (112) or get to a hospital immediately.",
     "states_best": null,
     "ungrounded": [],
     "script_ok": true,
@@ -566,7 +548,7 @@
    "lang": "en",
    "expect": "save_routine",
    "khidki": {
-    "reply": "Your daily 60-minute walk is saved (routine #7). I'll plan it every day within 05:00–21:00, usually starting at 06:00, and send you a reminder 45 minutes before the cleanest window. Each day I'll compare that window against your usual 06:00 start so you can see how much less PM2.5 you breathe.",
+    "reply": "Your daily walk is saved (routine 10): 60 minutes, usual start 06:00, any time between 05:00 and 21:00.\n\nEach day I'll plan the cleanest window for it and remind you 45 minutes before that time. Mornings often trap smoke near the ground, so the best time is often later in the day, when the air has mixed.",
     "tools": [
      "save_routine"
     ],
@@ -576,21 +558,19 @@
     "engine_best": null,
     "states_best": null,
     "ungrounded": [
-     "06:00",
-     "06:00",
      "60"
     ],
     "script_ok": true,
     "behaviour_ok": true,
-    "seconds": 2.8
+    "seconds": 2.9
    },
    "baseline": {
-    "reply": "I can't save routines or set daily reminders, since I don't have access to your calendar, phone, or any scheduling tool. You could set a recurring 05:30 or 06:00 alarm on your phone for your walk.\n\nFor clean air near Lodhi Garden, aim for early morning, around 05:00 to 07:00, when pollution is often lower, and check the AQI before you leave. If it's high that day, a later walk after rain or wind picks up can help.",
+    "reply": "I can't save routines or set daily reminders, since I don't have access to your calendar or a way to send you notifications. Your phone's clock or calendar app can handle that, and I can help you pick the best window. For Lodhi Garden, air is usually cleanest in early morning around 05:30–07:00 before traffic builds, so your usual 06:00 start is a good choice. If your 06:00 walk looks heavily polluted on a given day, try 05:00–06:00 or after 20:00 when traffic has eased.",
     "states_best": null,
     "ungrounded": [
      "05:30",
-     "06:00",
-     "07:00"
+     "07:00",
+     "20:00"
     ],
     "script_ok": true,
     "behaviour_ok": null
