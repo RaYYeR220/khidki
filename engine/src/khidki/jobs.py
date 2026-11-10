@@ -379,14 +379,10 @@ def run_audit(store: Store, target: date) -> dict:
 def clean_bulletin(text: str) -> str:
     """Drop any leading first-person working notes ("I need to…", "I'll…") a
     model may emit before the bulletin itself."""
-    paras = [p for p in text.strip().split("
-
-")]
+    paras = text.strip().split("\n\n")
     while paras and paras[0].lstrip("*# ").startswith(("I ", "I'", "Let me", "First,", "Okay", "OK,")):
         paras.pop(0)
-    return "
-
-".join(paras).strip()
+    return "\n\n".join(paras).strip()
 
 
 def make_bulletin(store: Store, target: date, writer=None, force: bool = False) -> dict:
