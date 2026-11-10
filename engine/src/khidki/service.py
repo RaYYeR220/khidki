@@ -147,16 +147,22 @@ def compute_airing(
     if not 10 <= int(open_minutes) <= 120:
         raise ValueError("open_minutes must be between 10 and 120")
     _check_point(lat, lon)
+    now = now or now_ist()
     d = resolve_day(day, now)
     pf = point_forecast(store, lat, lon, d, now=now, cams_fallback=cams_fallback)
     if len(pf.values) < 24:
         return {"status": "no_data", "day": d.isoformat(), "reason": "need a full-day forecast for this place"}
+    e, le = at(d, parse_time(earliest)), at(d, parse_time(latest_end))
+    if d == now.date():  # only future opening times make sense for today
+        e = max(e, (now + timedelta(minutes=30 - now.minute % 30)).replace(second=0, microsecond=0))
+    if e > le - timedelta(minutes=open_minutes):
+        return {"status": "window_closed", "day": d.isoformat(), "reason": "the allowed time for this day has already passed"}
     p = plan_airing(
         pf.values,
         day_start=jobs.day_start(d),
         open_minutes=open_minutes,
-        earliest=at(d, parse_time(earliest)),
-        latest_end=at(d, parse_time(latest_end)),
+        earliest=e,
+        latest_end=le,
         habitual_start=at(d, parse_time(habitual)) if habitual else None,
     )
     return {

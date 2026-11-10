@@ -87,13 +87,14 @@ def window(
     habitual: str | None = "06:00",
     age: AgeBand = AgeBand.adult,
     day: str = "today",
+    log: bool = Query(True, description="count this lookup in /v1/impact (the site's own previews pass false)"),
     store: Store = Depends(get_store),
 ) -> dict:
     try:
         return service.compute_window(
             store, lat=lat, lon=lon, activity=activity, minutes=minutes, earliest=earliest,
             latest_end=latest_end, habitual=habitual or None, age=age, day=day, now=now_ist(),
-            cams_fallback=_cams_point,
+            cams_fallback=_cams_point, log_event=log,
         )
     except ValueError as e:
         raise _bad(e) from e
@@ -236,8 +237,10 @@ def audit(day: str | None = None, store: Store = Depends(get_store)) -> dict:
     by_kind: dict[str, int] = {}
     for r in rows:
         by_kind[r["kind"]] = by_kind.get(r["kind"], 0) + 1
+    audited = bool(rows) or bool(store.one("SELECT 1 FROM events WHERE kind='audit_done' AND meta=?", (json.dumps({"day": day}),)))
     return {
         "day": day,
+        "audited": audited,
         "stations_audited": store.one("SELECT COUNT(*) n FROM stations WHERE active=1")["n"],
         "by_kind": by_kind,
         "flags": [{**{k: r[k] for k in ("station_id", "name", "city", "kind", "severity")}, "detail": json.loads(r["detail"])} for r in rows],
