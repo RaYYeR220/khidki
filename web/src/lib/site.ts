@@ -170,3 +170,34 @@ export const REPLAY = {
   ],
   mlModel: -35,
 };
+
+
+/** Replay of winter 2025–26 across India's reference-grade monitors
+ *  (engine/results/backtest-national-2025-11-01-2026-02-28.json, engine/scripts/backtest_national.py).
+ *  % change in PM2.5 dose vs the usual time; negative = less smoke. */
+export const NATIONAL = {
+  monitors: 490,
+  cities: 262,
+  stationDays: 49983,
+  period: "1 Nov 2025 – 28 Feb 2026",
+  rows: [
+    { scenario: "Morning walk, 60 min", usual: "06:00", allowed: "05:00–21:00", stationDays: 38803, khidki: -28.6, fixed: -27.4, hindsight: -44.3, worseKhidki: 24.9, worseFixed: 29.3 },
+    { scenario: "School outdoor play, 45 min", usual: "08:00", allowed: "08:00–14:00", stationDays: 39445, khidki: -26.4, fixed: -26.2, hindsight: -35.0, worseKhidki: 21.2, worseFixed: 27.4 },
+    { scenario: "Evening walk, 60 min", usual: "18:30", allowed: "15:00–22:00", stationDays: 40791, khidki: -25.9, fixed: -24.6, hindsight: -34.4, worseKhidki: 17.8, worseFixed: 22.0 },
+    { scenario: "Walk that must end by 10:00, 45 min", usual: "06:30", allowed: "05:00–10:00", stationDays: 41396, khidki: -3.4, fixed: 8.2, hindsight: -14.1, worseKhidki: 38.1, worseFixed: 64.8 },
+  ],
+  byCity: [
+    { city: "Delhi", monitors: 30, khidki: -38.3, fixed: -37.5, hindsight: -49.3 },
+    { city: "Mumbai", monitors: 25, khidki: -16.9, fixed: -20.1, hindsight: -39.9 },
+    { city: "Bengaluru", monitors: 10, khidki: -10.8, fixed: 5.3, hindsight: -30.5 },
+    { city: "Hyderabad", monitors: 14, khidki: -16.0, fixed: -11.7, hindsight: -29.5 },
+    { city: "Chennai", monitors: 8, khidki: -28.3, fixed: -31.3, hindsight: -54.7 },
+    { city: "Kolkata", monitors: 7, khidki: -32.5, fixed: -33.6, hindsight: -44.4 },
+    { city: "Ahmedabad", monitors: 8, khidki: -17.2, fixed: -10.7, hindsight: -35.5 },
+    { city: "Pune", monitors: 8, khidki: -44.1, fixed: -42.5, hindsight: -55.1 },
+    { city: "Lucknow", monitors: 6, khidki: -18.1, fixed: -17.5, hindsight: -46.2 },
+    { city: "Patna", monitors: 6, khidki: -18.8, fixed: -21.6, hindsight: -37.5 },
+    { city: "Jaipur", monitors: 6, khidki: -35.4, fixed: -37.4, hindsight: -47.9 },
+    { city: "Indore", monitors: 5, khidki: -46.4, fixed: -43.8, hindsight: -51.8 },
+  ],
+};

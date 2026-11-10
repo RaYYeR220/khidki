@@ -35,7 +35,17 @@
 | evening walk between 15:00 and 22:00 (usually 18:30) | −22% |
 | a walk that must end by 10:00 | +1.6%: winter mornings have no clean slot, and Khidki says so |
 
-**What we found and say plainly:** a fixed afternoon rule does as well as our forecast at this monitor (41% vs 40%). We also tried a weather-aware gradient-boosted model (boundary-layer height, wind, temperature, humidity, CAMS): −35% on the same days. Khidki's value is not a cleverer guess at "3 pm". It is getting people out of the 6 am habit, fitting the hour to their real limits, covering every monitor and every home, and checking itself in public. The window was worse than 06:00 on 22 of 113 days; those days are published like the others.
+**Replay across India, winter 2025–26** (490 reference-grade monitors in 262 cities and towns, 49,983 monitor-days):
+
+| a 60-minute walk, usually at 06:00 | PM2.5 breathed vs 06:00 | worse than 06:00 on |
+|---|---|---|
+| Khidki's day-ahead window | **−29%** | 25% of days |
+| a fixed "go at 15:00" rule | −27% | 29% of days |
+| best hour in hindsight | −44% | 0% |
+
+One rule does not travel: in Bengaluru the fixed 15:00 rule made the morning walk 5% smokier, while Khidki, which learns each monitor's own day, cut it by 11%. It is not ahead everywhere: in Mumbai, Chennai and Patna the fixed rule did better (per-city table on the ledger page and in `engine/results/backtest-national-*.json`).
+
+**What we found and say plainly:** at this Delhi monitor a fixed afternoon rule does as well as our forecast (41% vs 40%). We also tried a weather-aware gradient-boosted model (boundary-layer height, wind, temperature, humidity, CAMS): −35% on the same days. Khidki's value is not a cleverer guess at "3 pm". It is getting people out of the 6 am habit, fitting the hour to their real limits, covering every monitor and every home, and checking itself in public. The window was worse than 06:00 on 22 of 113 days; those days are published like the others.
 
 **The assistant** (18 pre-registered cases in English, Hindi, Hinglish, Tamil and Bengali, three runs, graded mechanically against an answer key):
 
@@ -48,14 +58,14 @@
 
 The grader is strict: a number counts as unsupported unless it appears in a tool result or in the person's own words, so even reading "by 10" as 10:00 counts against the agent. Cases, grader and every reply: `engine/evals/planner_cases.json`, `engine/scripts/eval_planner.py`, `engine/results/agent-eval-run*.json`.
 
-**Live record:** see the [ledger](https://khidki.app/ledger) for every day published so far and how it measured up.
+**Live record:** see the [ledger](https://khidki.vercel.app/ledger) for every day published so far and how it measured up.
 
 ## Try it
 
-- Web: https://khidki.app
-- Telegram: https://t.me/KhidkiAirBot
-- API: `GET https://api.khidki.app/v1/window?lat=28.59&lon=77.22&activity=walk&minutes=60&habitual=06:00&day=tomorrow` ([docs](https://api.khidki.app/docs))
-- For other agents (MCP, streamable HTTP): `https://api.khidki.app/mcp/`
+- Web: https://khidki.vercel.app
+- Telegram: https://t.me/Khidkitgbot
+- API: `GET https://khidki-engine-ptslyhnp7q-el.a.run.app/v1/window?lat=28.59&lon=77.22&activity=walk&minutes=60&habitual=06:00&day=tomorrow` ([docs](https://khidki-engine-ptslyhnp7q-el.a.run.app/docs))
+- For other agents (MCP, streamable HTTP): `https://khidki-engine-ptslyhnp7q-el.a.run.app/mcp/`
 
 ## How it works
 
@@ -72,7 +82,7 @@ docs/     method, claims and how to check them
 ```bash
 cd engine
 uv sync
-uv run pytest                       # 44 tests
+uv run pytest                       # 54 tests
 uv run uvicorn khidki.api:app --reload
 ```
 

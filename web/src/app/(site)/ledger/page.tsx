@@ -4,7 +4,7 @@ import LedgerRow from "@/components/ledger/LedgerRow";
 import s from "@/components/ledger/ledger.module.css";
 import { api, settle, type ScoreRow } from "@/lib/api";
 import { dayLabel, int, nowIST, signedPct } from "@/lib/format";
-import { REPLAY } from "@/lib/site";
+import { NATIONAL, REPLAY } from "@/lib/site";
 
 export const revalidate = 120;
 
@@ -207,6 +207,85 @@ export default async function LedgerPage() {
               <p className="small">
                 Fixed 15:00 is clamped to the latest start the allowed hours permit (13:15 for school play, 09:15 for the 10:00
                 deadline). Source: engine/results in the public repository.
+              </p>
+            </div>
+          </section>
+
+          <section className="sec" id="national" aria-labelledby="national-h">
+            <div className={s.secHead}>
+              <div>
+                <p className={s.tag}>Replay, not published in advance</p>
+                <h2 className="h2" id="national-h">
+                  Winter 2025–26 across India
+                </h2>
+              </div>
+              <p className="body">
+                The same replay on every reference-grade monitor with a winter of data: {NATIONAL.monitors} monitors in{" "}
+                {NATIONAL.cities} cities and towns, {int(NATIONAL.stationDays)} monitor-days ({NATIONAL.period}).
+              </p>
+            </div>
+            <div className="table-wrap">
+              <table className="tbl tbl-wide">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Usual · allowed</th>
+                    <th className="num">Monitor-days</th>
+                    <th className="num">Khidki</th>
+                    <th className="num">Fixed 15:00</th>
+                    <th className="num">Best in hindsight</th>
+                    <th className="num">Worse than usual: Khidki · fixed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NATIONAL.rows.map((r) => (
+                    <tr key={r.scenario}>
+                      <td>{r.scenario}</td>
+                      <td className="mono">
+                        {r.usual} · {r.allowed}
+                      </td>
+                      <td className="num mono">{int(r.stationDays)}</td>
+                      <td className="num mono">{signedPct(r.khidki, 1)}</td>
+                      <td className="num mono">{signedPct(r.fixed, 1)}</td>
+                      <td className="num mono">{signedPct(r.hindsight, 1)}</td>
+                      <td className="num mono">
+                        {r.worseKhidki}% · {r.worseFixed}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-wrap">
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th>Morning walk, by city</th>
+                    <th className="num">Monitors</th>
+                    <th className="num">Khidki</th>
+                    <th className="num">Fixed 15:00</th>
+                    <th className="num">Best in hindsight</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NATIONAL.byCity.map((c) => (
+                    <tr key={c.city} className={c.fixed > 0 ? s.miss : undefined}>
+                      <td>{c.city}</td>
+                      <td className="num mono">{c.monitors}</td>
+                      <td className="num mono">{signedPct(c.khidki, 1)}</td>
+                      <td className="num mono">{signedPct(c.fixed, 1)}</td>
+                      <td className="num mono">{signedPct(c.hindsight, 1)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className={s.plain}>
+              <p>
+                One rule does not fit every city. Khidki learns each monitor&apos;s own day, which is why it comes out ahead
+                nationally ({signedPct(NATIONAL.rows[0].khidki, 1)} vs {signedPct(NATIONAL.rows[0].fixed, 1)}) and leaves people worse off
+                than their usual time less often ({NATIONAL.rows[0].worseKhidki}% vs {NATIONAL.rows[0].worseFixed}% of days). It
+                is not ahead everywhere: in Mumbai, Chennai and Patna the fixed rule did better.
               </p>
             </div>
           </section>

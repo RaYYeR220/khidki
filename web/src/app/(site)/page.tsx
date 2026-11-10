@@ -4,7 +4,7 @@ import Hero from "@/components/hero/Hero";
 import { API_BASE, api, settle } from "@/lib/api";
 import { dayLabel, hh, int, nowIST, shortHash, signedPct, ug } from "@/lib/format";
 import { getHeroData } from "@/lib/hero";
-import { HERO_PLACE, MCP_URL, REPLAY, SITE_URL } from "@/lib/site";
+import { HERO_PLACE, MCP_URL, NATIONAL, REPLAY, SITE_URL } from "@/lib/site";
 import s from "./landing.module.css";
 
 export const revalidate = 60;
@@ -48,6 +48,7 @@ export default async function Home() {
 
   const stripWin = { start: hero.open, end: hero.close };
   const morning = REPLAY.rows[0];
+  const bengaluru = NATIONAL.byCity.find((c) => c.city === "Bengaluru")!;
 
   return (
     <>
@@ -174,11 +175,14 @@ export default async function Home() {
               <p className={s.replayTag}>Replay of winter 2025–26, not published in advance</p>
               <p className={s.replayLine}>
                 Same walk, {Math.round(-morning.khidki)}% less smoke: {morning.days} winter days at Chanakyapuri, moving a 06:00
-                walk to Khidki&apos;s hour. A fixed 3 pm rule did as well ({signedPct(morning.fixed)}).
+                walk to Khidki&apos;s hour. Across {NATIONAL.monitors} government monitors in {NATIONAL.cities} cities and towns,{" "}
+                {Math.round(-NATIONAL.rows[0].khidki)}% less.
               </p>
               <p className="small">
-                In a smoggy Delhi winter the afternoon is usually cleanest, and a simple rule catches most of it. Khidki&apos;s
-                case rests on the days that are not typical, and on publishing each call before the day so it can be checked.{" "}
+                In a smoggy Delhi winter a fixed 3 pm rule does as well ({signedPct(morning.fixed)}). It does not travel: in
+                Bengaluru the same rule made a morning walk {signedPct(bengaluru.fixed)} smokier, where Khidki, which learns each
+                monitor&apos;s own day, cut it by {Math.round(-bengaluru.khidki)}%. Nationally the rule left people worse off than at 06:00 on{" "}
+                {Math.round(NATIONAL.rows[0].worseFixed)}% of days, Khidki on {Math.round(NATIONAL.rows[0].worseKhidki)}%.{" "}
                 <Link className="link" href="/ledger#replay">
                   Full replay
                 </Link>

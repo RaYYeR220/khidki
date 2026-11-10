@@ -37,6 +37,7 @@ def main() -> None:
     bt = load("backtest-delhi-chanakyapuri-*.json")["summary"]
     di = load("diurnal-delhi-chanakyapuri-*.json")
     gbm = load("exp-gbm-weather-8118-*.json")
+    nat = load("backtest-national-*.json")
     runs = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(RES.glob("agent-eval-run*.json"))]
 
     mw = bt["morning_walk"]
@@ -76,6 +77,16 @@ def main() -> None:
         "eval_script_k": tally("khidki", "script_matches"),
         "eval_script_b": tally("baseline_same_model_no_tools", "script_matches"),
         "tests": m.group(1) if m else "?",
+        "nat_monitors": str(nat["monitors_used"]),
+        "nat_cities": str(len([c for c in nat["by_city"] if c and c != "unknown"])),
+        "nat_days": f"{nat['station_days']:,}",
+        "nat_khidki": f"{nat['pooled']['morning_walk']['blend']['reduction_vs_habitual_pct']:.0f}",
+        "nat_rule": f"{nat['pooled']['morning_walk']['rule_of_thumb']['reduction_vs_habitual_pct']:.0f}",
+        "nat_oracle": f"{nat['pooled']['morning_walk']['oracle']['reduction_vs_habitual_pct']:.0f}",
+        "nat_worse_k": f"{nat['pooled']['morning_walk']['blend']['worse_than_habitual_pct']:.0f}",
+        "nat_worse_r": f"{nat['pooled']['morning_walk']['rule_of_thumb']['worse_than_habitual_pct']:.0f}",
+        "blr_khidki": f"{nat['by_city']['Bengaluru']['khidki_reduction_pct']:.0f}",
+        "blr_rule": f"{-nat['by_city']['Bengaluru']['rule_reduction_pct']:.0f}%",
         "app_url": arg("--app", "https://khidki.app"),
         "api_url": arg("--api", "https://api.khidki.app"),
         "bot_url": arg("--bot", "https://t.me/KhidkiAirBot"),

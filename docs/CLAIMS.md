@@ -37,13 +37,16 @@ Every statement Khidki makes in public, with how strong the evidence is and wher
 |---|---|---|
 | Moving a 60-minute 06:00 walk to Khidki's day-ahead window cut the PM2.5 breathed by 40% (113 winter days, Chanakyapuri) | REPRODUCIBLE (replay) | `engine/scripts/backtest_station.py 8118 28.63576 77.22445 2025-11-01 2026-02-28 delhi-chanakyapuri` |
 | A fixed "go at 15:00" rule did as well there (−41%) | REPRODUCIBLE (replay) | same file, `rule_of_thumb` |
+| Across 490 reference-grade monitors in 262 cities and towns (49,983 monitor-days, winter 2025–26), Khidki's window cut a 06:00 walker's PM2.5 by 29% vs 27% for the fixed 15:00 rule, and was worse than 06:00 on 25% vs 29% of days | REPRODUCIBLE (replay) | `engine/scripts/backtest_national.py 2025-11-01 2026-02-28` (needs a free OpenAQ key) → `engine/results/backtest-national-*.json` |
+| In Bengaluru the fixed 15:00 rule made the morning walk 5% smokier; Khidki cut it by 11% | REPRODUCIBLE (replay) | same file, `by_city.Bengaluru` |
+| In Mumbai, Chennai and Patna the fixed rule did better than Khidki | REPRODUCIBLE (replay) | same file |
 | A weather-aware gradient-boosted model did no better (−35%) | REPRODUCIBLE (replay) | `engine/scripts/exp_gbm.py` |
 | The agent names the hour the engine computed in 35 of 36 graded replies; the same model without tools does in 10 of 36 | REPRODUCIBLE | `engine/scripts/eval_planner.py` (needs an LLM key); results `engine/results/agent-eval-run*.json` |
 
 ## Not claimed
 
 - No health outcome for any individual: we measure PM2.5 breathed, not illness avoided.
-- No claim that Khidki's forecast beats a fixed afternoon rule at the Delhi monitor we replayed.
+- No claim that Khidki's forecast beats a fixed afternoon rule in Delhi, Mumbai, Chennai or Patna.
 - No users we cannot count: `/v1/impact` reports exactly what the database holds.
 - The winter 2025–26 numbers are a replay, not a published-in-advance record.
 - Monitor audit flags describe reported data, not anyone's conduct.

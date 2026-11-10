@@ -35,7 +35,17 @@
 | evening walk between 15:00 and 22:00 (usually 18:30) | −{{ev_khidki_pct}}% |
 | a walk that must end by 10:00 | {{bw_khidki_pct}}%: winter mornings have no clean slot, and Khidki says so |
 
-**What we found and say plainly:** a fixed afternoon rule does as well as our forecast at this monitor ({{mw_rule_pct}}% vs {{mw_khidki_pct}}%). We also tried a weather-aware gradient-boosted model (boundary-layer height, wind, temperature, humidity, CAMS): {{gbm_pct}}% on the same days. Khidki's value is not a cleverer guess at "3 pm". It is getting people out of the 6 am habit, fitting the hour to their real limits, covering every monitor and every home, and checking itself in public. The window was worse than 06:00 on {{mw_worse_days}} of {{mw_days}} days; those days are published like the others.
+**Replay across India, winter 2025–26** ({{nat_monitors}} reference-grade monitors in {{nat_cities}} cities and towns, {{nat_days}} monitor-days):
+
+| a 60-minute walk, usually at 06:00 | PM2.5 breathed vs 06:00 | worse than 06:00 on |
+|---|---|---|
+| Khidki's day-ahead window | **−{{nat_khidki}}%** | {{nat_worse_k}}% of days |
+| a fixed "go at 15:00" rule | −{{nat_rule}}% | {{nat_worse_r}}% of days |
+| best hour in hindsight | −{{nat_oracle}}% | 0% |
+
+One rule does not travel: in Bengaluru the fixed 15:00 rule made the morning walk {{blr_rule}} smokier, while Khidki, which learns each monitor's own day, cut it by {{blr_khidki}}%. It is not ahead everywhere: in Mumbai, Chennai and Patna the fixed rule did better (per-city table on the ledger page and in `engine/results/backtest-national-*.json`).
+
+**What we found and say plainly:** at this Delhi monitor a fixed afternoon rule does as well as our forecast ({{mw_rule_pct}}% vs {{mw_khidki_pct}}%). We also tried a weather-aware gradient-boosted model (boundary-layer height, wind, temperature, humidity, CAMS): {{gbm_pct}}% on the same days. Khidki's value is not a cleverer guess at "3 pm". It is getting people out of the 6 am habit, fitting the hour to their real limits, covering every monitor and every home, and checking itself in public. The window was worse than 06:00 on {{mw_worse_days}} of {{mw_days}} days; those days are published like the others.
 
 **The assistant** ({{eval_cases}} pre-registered cases in English, Hindi, Hinglish, Tamil and Bengali, three runs, graded mechanically against an answer key):
 
