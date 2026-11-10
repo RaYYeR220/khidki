@@ -1,0 +1,337 @@
+{
+ "station": "delhi-chanakyapuri",
+ "location_id": 8118,
+ "lat": 28.63576,
+ "lon": 77.22445,
+ "start": "2025-11-01",
+ "end": "2026-02-28",
+ "obs_hours": 3121,
+ "cams_hours": 3264,
+ "summary": {
+  "before_work": {
+   "blend": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": -1.56,
+    "captured_of_hindsight_best_pct": -12.56,
+    "beats_rule_of_thumb_pct": 38.1,
+    "worse_than_habitual_pct": 54.9,
+    "mean_conc": 200.5,
+    "dose_avoided_ug_per_day": -3.75
+   },
+   "cams": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 0.06,
+    "captured_of_hindsight_best_pct": 0.47,
+    "beats_rule_of_thumb_pct": 35.7,
+    "worse_than_habitual_pct": 49.1,
+    "mean_conc": 197.3,
+    "dose_avoided_ug_per_day": 0.14
+   },
+   "cams_bc": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": -0.09,
+    "captured_of_hindsight_best_pct": -0.73,
+    "beats_rule_of_thumb_pct": 38.9,
+    "worse_than_habitual_pct": 54.0,
+    "mean_conc": 197.6,
+    "dose_avoided_ug_per_day": -0.22
+   },
+   "clim": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": -0.15,
+    "captured_of_hindsight_best_pct": -1.23,
+    "beats_rule_of_thumb_pct": 42.9,
+    "worse_than_habitual_pct": 52.7,
+    "mean_conc": 197.8,
+    "dose_avoided_ug_per_day": -0.37
+   },
+   "habitual": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 0.0,
+    "captured_of_hindsight_best_pct": 0.0,
+    "beats_rule_of_thumb_pct": 55.8,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 197.4,
+    "dose_avoided_ug_per_day": 0.0
+   },
+   "oracle": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 12.43,
+    "captured_of_hindsight_best_pct": 100.0,
+    "beats_rule_of_thumb_pct": 69.0,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 172.9,
+    "dose_avoided_ug_per_day": 29.81
+   },
+   "rule_of_thumb": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 1.1,
+    "captured_of_hindsight_best_pct": 8.82,
+    "beats_rule_of_thumb_pct": 0,
+    "worse_than_habitual_pct": 55.8,
+    "mean_conc": 195.3,
+    "dose_avoided_ug_per_day": 2.63
+   }
+  },
+  "evening_walk": {
+   "blend": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 22.48,
+    "captured_of_hindsight_best_pct": 79.83,
+    "beats_rule_of_thumb_pct": 25.0,
+    "worse_than_habitual_pct": 8.8,
+    "mean_conc": 117.1,
+    "dose_avoided_ug_per_day": 52.99
+   },
+   "cams": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 22.51,
+    "captured_of_hindsight_best_pct": 79.96,
+    "beats_rule_of_thumb_pct": 10.7,
+    "worse_than_habitual_pct": 8.0,
+    "mean_conc": 117.1,
+    "dose_avoided_ug_per_day": 53.08
+   },
+   "cams_bc": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 22.82,
+    "captured_of_hindsight_best_pct": 81.03,
+    "beats_rule_of_thumb_pct": 28.6,
+    "worse_than_habitual_pct": 8.0,
+    "mean_conc": 116.6,
+    "dose_avoided_ug_per_day": 53.79
+   },
+   "clim": {
+    "station_days": 114,
+    "reduction_vs_habitual_pct": 22.53,
+    "captured_of_hindsight_best_pct": 80.19,
+    "beats_rule_of_thumb_pct": 28.6,
+    "worse_than_habitual_pct": 10.5,
+    "mean_conc": 117.2,
+    "dose_avoided_ug_per_day": 53.19
+   },
+   "habitual": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 0.0,
+    "captured_of_hindsight_best_pct": 0.0,
+    "beats_rule_of_thumb_pct": 10.7,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 151.8,
+    "dose_avoided_ug_per_day": 0.0
+   },
+   "oracle": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 28.43,
+    "captured_of_hindsight_best_pct": 100.0,
+    "beats_rule_of_thumb_pct": 53.6,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 108.6,
+    "dose_avoided_ug_per_day": 67.31
+   },
+   "rule_of_thumb": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 22.96,
+    "captured_of_hindsight_best_pct": 81.54,
+    "beats_rule_of_thumb_pct": 0,
+    "worse_than_habitual_pct": 10.7,
+    "mean_conc": 116.4,
+    "dose_avoided_ug_per_day": 54.13
+   }
+  },
+  "morning_walk": {
+   "blend": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 40.32,
+    "captured_of_hindsight_best_pct": 79.76,
+    "beats_rule_of_thumb_pct": 24.1,
+    "worse_than_habitual_pct": 19.5,
+    "mean_conc": 118.3,
+    "dose_avoided_ug_per_day": 129.46
+   },
+   "cams": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 40.32,
+    "captured_of_hindsight_best_pct": 79.72,
+    "beats_rule_of_thumb_pct": 16.1,
+    "worse_than_habitual_pct": 17.0,
+    "mean_conc": 118.3,
+    "dose_avoided_ug_per_day": 129.48
+   },
+   "cams_bc": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 39.6,
+    "captured_of_hindsight_best_pct": 78.35,
+    "beats_rule_of_thumb_pct": 26.8,
+    "worse_than_habitual_pct": 18.6,
+    "mean_conc": 119.7,
+    "dose_avoided_ug_per_day": 127.16
+   },
+   "clim": {
+    "station_days": 114,
+    "reduction_vs_habitual_pct": 39.84,
+    "captured_of_hindsight_best_pct": 78.96,
+    "beats_rule_of_thumb_pct": 29.5,
+    "worse_than_habitual_pct": 20.2,
+    "mean_conc": 119.4,
+    "dose_avoided_ug_per_day": 128.12
+   },
+   "habitual": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 0.0,
+    "captured_of_hindsight_best_pct": 0.0,
+    "beats_rule_of_thumb_pct": 18.8,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 199.1,
+    "dose_avoided_ug_per_day": 0.0
+   },
+   "oracle": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 50.64,
+    "captured_of_hindsight_best_pct": 100.0,
+    "beats_rule_of_thumb_pct": 75.0,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 98.3,
+    "dose_avoided_ug_per_day": 163.31
+   },
+   "rule_of_thumb": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 41.02,
+    "captured_of_hindsight_best_pct": 81.09,
+    "beats_rule_of_thumb_pct": 0,
+    "worse_than_habitual_pct": 18.8,
+    "mean_conc": 116.9,
+    "dose_avoided_ug_per_day": 131.71
+   }
+  },
+  "runner": {
+   "blend": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 40.32,
+    "captured_of_hindsight_best_pct": 79.76,
+    "beats_rule_of_thumb_pct": 24.1,
+    "worse_than_habitual_pct": 19.5,
+    "mean_conc": 118.3,
+    "dose_avoided_ug_per_day": 176.2
+   },
+   "cams": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 40.32,
+    "captured_of_hindsight_best_pct": 79.72,
+    "beats_rule_of_thumb_pct": 16.1,
+    "worse_than_habitual_pct": 17.0,
+    "mean_conc": 118.3,
+    "dose_avoided_ug_per_day": 176.24
+   },
+   "cams_bc": {
+    "station_days": 113,
+    "reduction_vs_habitual_pct": 39.6,
+    "captured_of_hindsight_best_pct": 78.35,
+    "beats_rule_of_thumb_pct": 26.8,
+    "worse_than_habitual_pct": 18.6,
+    "mean_conc": 119.7,
+    "dose_avoided_ug_per_day": 173.08
+   },
+   "clim": {
+    "station_days": 114,
+    "reduction_vs_habitual_pct": 39.84,
+    "captured_of_hindsight_best_pct": 78.96,
+    "beats_rule_of_thumb_pct": 29.5,
+    "worse_than_habitual_pct": 20.2,
+    "mean_conc": 119.4,
+    "dose_avoided_ug_per_day": 174.39
+   },
+   "habitual": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 0.0,
+    "captured_of_hindsight_best_pct": 0.0,
+    "beats_rule_of_thumb_pct": 18.8,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 199.1,
+    "dose_avoided_ug_per_day": 0.0
+   },
+   "oracle": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 50.64,
+    "captured_of_hindsight_best_pct": 100.0,
+    "beats_rule_of_thumb_pct": 75.0,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 98.3,
+    "dose_avoided_ug_per_day": 222.28
+   },
+   "rule_of_thumb": {
+    "station_days": 112,
+    "reduction_vs_habitual_pct": 41.02,
+    "captured_of_hindsight_best_pct": 81.09,
+    "beats_rule_of_thumb_pct": 0,
+    "worse_than_habitual_pct": 18.8,
+    "mean_conc": 116.9,
+    "dose_avoided_ug_per_day": 179.27
+   }
+  },
+  "school_play": {
+   "blend": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 36.37,
+    "captured_of_hindsight_best_pct": 90.11,
+    "beats_rule_of_thumb_pct": 3.5,
+    "worse_than_habitual_pct": 13.9,
+    "mean_conc": 125.8,
+    "dose_avoided_ug_per_day": 135.85
+   },
+   "cams": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 36.36,
+    "captured_of_hindsight_best_pct": 90.08,
+    "beats_rule_of_thumb_pct": 2.6,
+    "worse_than_habitual_pct": 15.7,
+    "mean_conc": 125.8,
+    "dose_avoided_ug_per_day": 135.8
+   },
+   "cams_bc": {
+    "station_days": 116,
+    "reduction_vs_habitual_pct": 35.86,
+    "captured_of_hindsight_best_pct": 89.39,
+    "beats_rule_of_thumb_pct": 7.8,
+    "worse_than_habitual_pct": 14.7,
+    "mean_conc": 126.4,
+    "dose_avoided_ug_per_day": 133.6
+   },
+   "clim": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 35.55,
+    "captured_of_hindsight_best_pct": 88.07,
+    "beats_rule_of_thumb_pct": 3.5,
+    "worse_than_habitual_pct": 14.8,
+    "mean_conc": 127.4,
+    "dose_avoided_ug_per_day": 132.78
+   },
+   "habitual": {
+    "station_days": 116,
+    "reduction_vs_habitual_pct": 0.0,
+    "captured_of_hindsight_best_pct": 0.0,
+    "beats_rule_of_thumb_pct": 15.7,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 197.1,
+    "dose_avoided_ug_per_day": 0.0
+   },
+   "oracle": {
+    "station_days": 116,
+    "reduction_vs_habitual_pct": 40.12,
+    "captured_of_hindsight_best_pct": 100.0,
+    "beats_rule_of_thumb_pct": 38.3,
+    "worse_than_habitual_pct": 0,
+    "mean_conc": 118.0,
+    "dose_avoided_ug_per_day": 149.46
+   },
+   "rule_of_thumb": {
+    "station_days": 115,
+    "reduction_vs_habitual_pct": 36.36,
+    "captured_of_hindsight_best_pct": 90.09,
+    "beats_rule_of_thumb_pct": 0,
+    "worse_than_habitual_pct": 15.7,
+    "mean_conc": 125.8,
+    "dose_avoided_ug_per_day": 135.82
+   }
+  }
+ }
+}
