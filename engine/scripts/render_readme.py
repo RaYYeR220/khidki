@@ -87,9 +87,9 @@ def main() -> None:
         "nat_worse_r": f"{nat['pooled']['morning_walk']['rule_of_thumb']['worse_than_habitual_pct']:.0f}",
         "blr_khidki": f"{nat['by_city']['Bengaluru']['khidki_reduction_pct']:.0f}",
         "blr_rule": f"{-nat['by_city']['Bengaluru']['rule_reduction_pct']:.0f}%",
-        "app_url": arg("--app", "https://khidki.app"),
-        "api_url": arg("--api", "https://api.khidki.app"),
-        "bot_url": arg("--bot", "https://t.me/KhidkiAirBot"),
+        "app_url": arg("--app", "https://khidki-air.vercel.app"),
+        "api_url": arg("--api", "https://khidki-engine-ptslyhnp7q-el.a.run.app"),
+        "bot_url": arg("--bot", "https://t.me/Khidkitgbot"),
     }
     text = (ROOT / "docs" / "README.template.md").read_text(encoding="utf-8")
     missing = set(re.findall(r"\{\{(\w+)\}\}", text)) - vals.keys()

@@ -58,11 +58,11 @@ One rule does not travel: in Bengaluru the fixed 15:00 rule made the morning wal
 
 The grader is strict: a number counts as unsupported unless it appears in a tool result or in the person's own words, so even reading "by 10" as 10:00 counts against the agent. Cases, grader and every reply: `engine/evals/planner_cases.json`, `engine/scripts/eval_planner.py`, `engine/results/agent-eval-run*.json`.
 
-**Live record:** see the [ledger](https://khidki.vercel.app/ledger) for every day published so far and how it measured up.
+**Live record:** see the [ledger](https://khidki-air.vercel.app/ledger) for every day published so far and how it measured up.
 
 ## Try it
 
-- Web: https://khidki.vercel.app
+- Web: https://khidki-air.vercel.app
 - Telegram: https://t.me/Khidkitgbot
 - API: `GET https://khidki-engine-ptslyhnp7q-el.a.run.app/v1/window?lat=28.59&lon=77.22&activity=walk&minutes=60&habitual=06:00&day=tomorrow` ([docs](https://khidki-engine-ptslyhnp7q-el.a.run.app/docs))
 - For other agents (MCP, streamable HTTP): `https://khidki-engine-ptslyhnp7q-el.a.run.app/mcp/`
