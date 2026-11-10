@@ -42,7 +42,7 @@ ALLOWED = {"2.5", "95", "112", "24", "45", "05:00", "21:00", "08:00", "14:00"}
 DIGITS = str.maketrans("०१२३४५६७८९০১২৩৪৫৬৭৮৯௦௧௨௩௪௫௬௭௮௯", "0123456789" * 3)
 TIME_RE = re.compile(r"\b([01]?\d|2[0-3]):([0-5]\d)\b")
 NUM_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(?!\.?\d)(?![^\W\d_])")
-CLOCK_RE = re.compile(r"(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.|baje|बजे|মণি|மணி|টায়|টা)", re.I)
+CLOCK_RE = re.compile(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.|baje|बजे|মণি|மணி|টায়|টা)", re.I)
 
 
 def norm(text: str) -> str:
@@ -89,7 +89,8 @@ def collect_numbers(obj) -> set[str]:
 
 
 def ungrounded(reply: str, sources: set[str]) -> list[str]:
-    r = norm(reply)
+    # list markers ("1. ", "2) ") are formatting, not claims
+    r = re.sub(r"(?m)^\s*\d{1,2}[.)]\s", " ", norm(reply))
     bad = []
     for h, m in TIME_RE.findall(r):
         t = f"{int(h):02d}:{m}"

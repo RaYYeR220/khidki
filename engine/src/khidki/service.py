@@ -166,6 +166,11 @@ def compute_airing(
         "open_minutes": open_minutes,
         "usual": habitual,
         "outdoor_pm25_then": round(p.best_outdoor_mean, 1) if p.best_outdoor_mean is not None else None,
+        "outdoor_pm25_at_usual": (
+            round(pf.values[at(d, parse_time(habitual)).replace(minute=0)], 1)
+            if habitual and at(d, parse_time(habitual)).replace(minute=0) in pf.values
+            else None
+        ),
         "reduction_pct": round(p.reduction_pct, 1) if p.reduction_pct is not None else None,
         "dose_avoided_ug": round(p.dose_avoided_ug, 1) if p.dose_avoided_ug is not None else None,
         "flags": p.flags,

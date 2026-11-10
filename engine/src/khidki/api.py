@@ -21,7 +21,21 @@ from .jobs import now_ist
 from .ratelimit import RateLimiter
 from .store import Store
 
-app = FastAPI(title="Khidki API", version="0.1.0", docs_url="/docs", redoc_url=None)
+from contextlib import asynccontextmanager
+
+from .mcp_server import mcp as _mcp
+
+_mcp_app = _mcp.streamable_http_app(streamable_http_path="/", stateless_http=True, json_response=True, host="0.0.0.0")
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    async with _mcp.session_manager.run():
+        yield
+
+
+app = FastAPI(title="Khidki API", version="0.1.0", docs_url="/docs", redoc_url=None, lifespan=_lifespan)
+app.mount("/mcp", _mcp_app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o for o in os.environ.get("KHIDKI_CORS", "*").split(",") if o],
