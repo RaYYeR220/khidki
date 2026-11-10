@@ -119,6 +119,7 @@ def air_now(lat: float = Query(..., ge=6, le=37.5), lon: float = Query(..., ge=6
 
 
 _geo_per_ip = RateLimiter(rate_per_min=20, burst=10)
+_geo_global = RateLimiter(rate_per_min=55, burst=5)
 
 
 @app.get("/v1/geocode")
@@ -127,10 +128,14 @@ def geocode(request: Request, q: str = Query(..., min_length=2, max_length=120))
     ip = xff.split(",")[-1].strip() if xff else (request.client.host if request.client else "?")
     if not _geo_per_ip.allow(ip):
         raise HTTPException(429, "too many searches, please wait a moment")
-    from .geocode import search
+    from .geocode import Busy, search
 
+    if not _geo_global.allow("all"):
+        raise HTTPException(429, "place search is busy, try again in a moment")
     try:
         return {"results": list(search(q))}
+    except Busy as e:
+        raise HTTPException(429, str(e)) from e
     except Exception as e:
         raise HTTPException(502, "place search is unavailable right now") from e
 

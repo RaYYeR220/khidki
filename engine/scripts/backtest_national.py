@@ -37,9 +37,9 @@ def main() -> None:
     arch = Archive("data/cache/openaq")
 
     def load(l):
-        return l, hourly_pm25(arch.range(l.id, hist, end + timedelta(days=1), workers=4))
+        return l, hourly_pm25(arch.range(l.id, hist, end + timedelta(days=1), workers=3))
 
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=5) as ex:
         obs_by = {l.id: (l, s) for l, s in ex.map(load, locs)}
     usable = [(l, s) for l, s in obs_by.values() if len(s) >= 24 * 30]
     print("with >=30 days of readings", len(usable))

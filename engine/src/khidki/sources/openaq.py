@@ -80,13 +80,25 @@ class Archive:
         if path.exists():
             raw = path.read_bytes()
         else:
-            r = self.client.get(f"{ARCHIVE}/{key}")
-            if r.status_code in (403, 404):
-                path.write_bytes(b"")
+            raw = None
+            for attempt in range(4):
+                try:
+                    r = self.client.get(f"{ARCHIVE}/{key}")
+                except httpx.TransportError:
+                    time.sleep(1.5 * (attempt + 1))
+                    continue
+                if r.status_code in (403, 404):  # no file for that day: remember it
+                    path.write_bytes(b"")
+                    return []
+                if r.status_code >= 500:
+                    time.sleep(1.5 * (attempt + 1))
+                    continue
+                r.raise_for_status()
+                raw = r.content
+                path.write_bytes(raw)
+                break
+            if raw is None:  # transient failure: report no data, cache nothing, retry next time
                 return []
-            r.raise_for_status()
-            raw = r.content
-            path.write_bytes(raw)
         return parse_archive_csv(raw) if raw else []
 
     def range(self, location_id: int, start: date, end: date, workers: int = 8) -> list[Reading]:
