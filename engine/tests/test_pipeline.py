@@ -231,9 +231,9 @@ def test_upgrade_proofs_stores_completed_proof():
         calls.append(b)
         return b + b"\x01", True
 
-    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 1, "completed_now": 1}
+    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 1, "completed_now": 1, "failed": []}
     # the completed proof is not asked for again
-    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 0, "completed_now": 0}
+    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 0, "completed_now": 0, "failed": []}
     assert len(calls) == 1
 
 
