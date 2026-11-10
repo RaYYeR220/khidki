@@ -342,3 +342,16 @@ def test_clean_bulletin_drops_working_notes():
     raw = "I need to count the monitors first.\n\nI'll keep it short.\n\n**Monitor health, 9 Nov**\n\nOf 480 monitors..."
     assert jobs.clean_bulletin(raw).startswith("**Monitor health, 9 Nov**")
     assert jobs.clean_bulletin("Of 480 monitors audited...") == "Of 480 monitors audited..."
+
+
+def test_archive_quarter_hours_average_into_hour_start():
+    import gzip
+
+    from khidki.sources.openaq import hourly_pm25, parse_archive_csv
+
+    rows = ['"location_id","sensors_id","location","datetime","lat","lon","parameter","units","value"']
+    for end, v in [("2026-11-06T00:15:00+05:30", 100), ("2026-11-06T00:30:00+05:30", 110), ("2026-11-06T00:45:00+05:30", 120), ("2026-11-06T01:00:00+05:30", 130), ("2026-11-06T02:00:00+05:30", 50)]:
+        rows.append(f'17,35,"X","{end}","28","77","pm25","ug","{v}"')
+    s = hourly_pm25(parse_archive_csv(gzip.compress("\n".join(rows).encode())))
+    h0 = datetime(2026, 11, 6, 0, tzinfo=IST)
+    assert s == {h0: 115.0, h0 + timedelta(hours=1): 50.0}

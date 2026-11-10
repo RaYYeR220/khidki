@@ -44,8 +44,10 @@ def _archive_key(location_id: int, day: date) -> str:
 
 def parse_archive_csv(raw: bytes) -> list[Reading]:
     """Parse one archive day file. OpenAQ timestamps mark the END of the
-    averaging period; we shift to the start of the hour so every series in
-    Khidki is keyed by hour-start."""
+    averaging period, which may be an hour (most reference monitors) or 15
+    minutes (CPCB CAAQMS). Each reading is assigned to the clock hour its
+    period falls in (end minus one second, floored), so ``hourly_pm25`` can
+    average sub-hourly readings into hour-start keyed means."""
     text = gzip.decompress(raw).decode("utf-8")
     out: list[Reading] = []
     for row in csv.DictReader(io.StringIO(text)):
@@ -54,11 +56,12 @@ def parse_archive_csv(raw: bytes) -> list[Reading]:
         except (TypeError, ValueError):
             continue
         end = datetime.fromisoformat(row["datetime"])
+        hour = (end - timedelta(seconds=1)).replace(minute=0, second=0, microsecond=0)
         out.append(
             Reading(
                 location_id=int(row["location_id"]),
                 sensor_id=int(row["sensors_id"]),
-                time=end - timedelta(hours=1),
+                time=hour,
                 parameter=row["parameter"],
                 value=v,
             )
