@@ -105,9 +105,19 @@ def audit_day(
                 )
             )
 
-        for start, length, value in frozen_runs(s, day_start):
+        runs = frozen_runs(s, day_start)
+        if runs:  # one flag per monitor per day, listing every frozen stretch
             flags.append(
-                Flag(sid, day, "frozen_value", "warn", {"from": start.strftime("%H"), "hours": length, "value": value})
+                Flag(
+                    sid,
+                    day,
+                    "frozen_value",
+                    "warn",
+                    {
+                        "runs": [{"from": a.strftime("%H"), "hours": n, "value": v} for a, n, v in runs],
+                        "hours": sum(n for _, n, _ in runs),
+                    },
+                )
             )
 
         implausible = [h for h in hours if h in s and (s[h] <= 0 or s[h] >= 999)]

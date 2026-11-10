@@ -53,6 +53,7 @@ def point_forecast(
     measured: list[datetime] = []
     used = []
     issued = None
+    source_live = False
     if weights:
         fc_rows = {
             r["station_id"]: r
@@ -74,6 +75,17 @@ def point_forecast(
                 k = h.strftime("%H")
                 pf_vals[h] = sum(w.weight * v[k] for w, v, _ in fc_w if k in v) / tot
                 pf_sig[h] = sum(w.weight * s.get(k, 0.6) for w, _, s in fc_w) / tot
+        elif cams_fallback is not None:
+            # No published forecast for this day (e.g. before the first evening
+            # publication): forecast live for a virtual monitor at the point, from
+            # the distance-weighted readings of the monitors around it plus CAMS at
+            # the point. Same model as the published forecasts; flagged as live.
+            live = _live_virtual_forecast(store, weights, ds, now, cams_fallback(lat, lon))
+            if live is not None:
+                pf_vals.update(live.values)
+                pf_sig.update(live.sigma_log)
+                issued = live.issued_at.isoformat()
+                source_live = True
         # measured part (hours that already ended)
         for h in hours:
             if h + timedelta(hours=1) > now:
@@ -85,7 +97,7 @@ def point_forecast(
                 pf_sig[h] = 0.05
                 measured.append(h)
     factor = None
-    if pf_vals and measured:
+    if pf_vals and measured and not source_live:
         # intraday nowcast: ratio of measured to forecast over the last 3 measured hours
         recent = sorted(measured)[-3:]
         ratios = []
@@ -102,7 +114,8 @@ def point_forecast(
                     f = 1 + (factor - 1) * max(0.0, 1 - lead / 12.0)
                     pf_vals[h] *= f
     if len(pf_vals) >= 24 or (pf_vals and not cams_fallback):
-        return PointForecast(day.isoformat(), pf_vals, pf_sig, measured, "stations", used, issued, factor)
+        src = "stations_live" if source_live else "stations"
+        return PointForecast(day.isoformat(), pf_vals, pf_sig, measured, src, used, issued, factor)
     if cams_fallback is not None:
         series = cams_fallback(lat, lon)
         vals = {h: series[h] for h in hours if h in series}
@@ -125,3 +138,26 @@ def _forecast_at(store: Store, weights, day: date, h: datetime) -> float | None:
             num += wmap[r["station_id"]] * v
             den += wmap[r["station_id"]]
     return num / den if den else None
+
+
+def _live_virtual_forecast(store: Store, weights, ds: datetime, now: datetime, cams_point: dict):
+    """Blend forecast for a virtual monitor at a point (see point_forecast)."""
+    from .forecast import make_forecast, obs_before
+
+    start = ds - timedelta(days=16)
+    per = {w.id: store.get_obs(w.id, start, ds + timedelta(days=1)) for w in weights}
+    virtual: dict[datetime, float] = {}
+    t = start
+    while t < ds + timedelta(days=1):
+        vals = [(w.weight, per[w.id][t]) for w in weights if t in per[w.id]]
+        if vals:
+            tw = sum(a for a, _ in vals)
+            virtual[t] = sum(a * v for a, v in vals) / tw
+        t += timedelta(hours=1)
+    issued = min(now, ds - timedelta(hours=3)) if now < ds else now
+    past = obs_before(virtual, issued)
+    for model in ("blend", "cams_bc", "clim"):
+        f = make_forecast(model, obs=past, cams=cams_point, day_start=ds, issued_at=issued)
+        if f is not None:
+            return f
+    return None

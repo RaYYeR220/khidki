@@ -31,7 +31,7 @@ def _store() -> Store:
 def _cams(lat: float, lon: float):
     from ..sources.openmeteo import OpenMeteo
 
-    return OpenMeteo().cams(lat, lon, past_days=1, forecast_days=2).series("pm2_5")
+    return OpenMeteo().cams(lat, lon, past_days=16, forecast_days=2).series("pm2_5")
 
 
 def _where(tool_context: ToolContext | None, lat: float | None, lon: float | None) -> tuple[float, float] | None:

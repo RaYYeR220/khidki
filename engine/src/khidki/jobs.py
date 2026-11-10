@@ -21,7 +21,8 @@ log = logging.getLogger("khidki.jobs")
 IST = timezone(timedelta(hours=5, minutes=30))
 MODEL_PREFERENCE = ("blend", "cams_bc", "clim", "cams")
 PUBLISH_HOUR = 21  # IST, the evening before the target day
-VERIFY_LAG_HOURS = 6  # wait after midnight for late readings before verifying
+VERIFY_LAG_HOURS = 6  # earliest hour for the people check-ins
+DAILY_CHECK_HOUR = 9  # verify yesterday's recommendations and audit monitors at 09:00 IST
 
 
 def now_ist() -> datetime:
@@ -201,7 +202,7 @@ def publish(
     target: date,
     *,
     issued_at: datetime | None = None,
-    anchor: Callable[[str], dict[str, bytes]] | None = submit_opentimestamps,
+    anchor: Callable[[str], dict[str, bytes]] | None | str = "opentimestamps",
 ) -> dict:
     """Forecast + recommend for every active station, commit and anchor."""
     issued_at = issued_at or now_ist()
@@ -234,6 +235,8 @@ def publish(
     model_label = max(models, key=models.get)
     c = build_commitment(target.isoformat(), issued_at.isoformat(), model_label, recs)
     ots = None
+    if anchor == "opentimestamps":
+        anchor = submit_opentimestamps  # looked up at call time
     if anchor is not None:
         proofs = anchor(c.sha256)
         ots = ots_file(c.sha256, proofs)
@@ -443,49 +446,68 @@ def tick(
     now: datetime | None = None,
     hours_budget: int = 100,
 ) -> dict:
-    """Run whatever is due. Idempotent: safe to call every hour (or more)."""
+    """Run whatever is due. Idempotent: safe to call every 15 minutes.
+
+    Every stage is isolated: a failure is recorded in the run and the remaining
+    stages still run (publishing must never be blocked by, say, the audit)."""
     now = now or now_ist()
     out: dict = {"now": now.isoformat()}
+    errors: dict[str, str] = {}
     run_id = store.x("INSERT INTO runs(job, started_at) VALUES (?,?)", ("tick", now.isoformat()))
-    try:
-        if latest is not None and hasattr(latest, "india_pm25_locations"):
-            last = store.one("SELECT MAX(updated_at) u FROM stations WHERE source='openaq'")
-            if not last or not last["u"] or datetime.fromisoformat(last["u"]) < now - timedelta(hours=20):
-                out["stations"] = refresh_stations(store, latest)
-        if latest is not None and hasattr(latest, "sensor_hours"):
-            out["hours"] = sync_hours(store, latest, budget=hours_budget, now=now)
-        elif latest is not None:
-            out["obs"] = ingest_latest(store, latest)
-        tomorrow = now.date() + timedelta(days=1)
-        if now.hour >= PUBLISH_HOUR - 1 and cams is not None:
-            last = store.one("SELECT MAX(fetched_at) f FROM cams")
-            if not last or not last["f"] or datetime.fromisoformat(last["f"]) < now - timedelta(hours=12):
-                out["cams"] = ingest_cams(store, cams)
-        if now.hour >= PUBLISH_HOUR:
-            out["publish"] = publish(store, tomorrow, issued_at=now)
-        yesterday = now.date() - timedelta(days=1)
-        if now.hour >= VERIFY_LAG_HOURS and not store.one(
+
+    def stage(name: str, fn):
+        try:
+            out[name] = fn()
+        except Exception as e:  # recorded per stage; the tick goes on
+            log.exception("tick stage %s failed", name)
+            errors[name] = repr(e)[:300]
+
+    tomorrow = now.date() + timedelta(days=1)
+    yesterday = now.date() - timedelta(days=1)
+
+    if latest is not None and hasattr(latest, "india_pm25_locations"):
+        last = store.one("SELECT MAX(updated_at) u FROM stations WHERE source='openaq'")
+        if not last or not last["u"] or datetime.fromisoformat(last["u"]) < now - timedelta(hours=20):
+            stage("stations", lambda: refresh_stations(store, latest))
+    if latest is not None and hasattr(latest, "sensor_hours"):
+        stage("hours", lambda: sync_hours(store, latest, budget=hours_budget, now=now))
+    elif latest is not None:
+        stage("obs", lambda: ingest_latest(store, latest))
+
+    if now.hour >= PUBLISH_HOUR - 1 and cams is not None:
+        last = store.one("SELECT MAX(fetched_at) f FROM cams")
+        if not last or not last["f"] or datetime.fromisoformat(last["f"]) < now - timedelta(hours=12):
+            stage("cams", lambda: ingest_cams(store, cams))
+    if now.hour >= PUBLISH_HOUR:
+        stage("publish", lambda: publish(store, tomorrow, issued_at=now))
+
+    # Yesterday's readings are complete by mid-morning (the hourly sync cycles
+    # through every monitor in about an hour): verify and audit once, then.
+    if now.hour >= DAILY_CHECK_HOUR:
+        if store.one("SELECT 1 FROM recommendations WHERE day=? LIMIT 1", (yesterday.isoformat(),)) and not store.one(
             "SELECT 1 FROM verdicts WHERE day=? LIMIT 1", (yesterday.isoformat(),)
         ):
-            if store.one("SELECT 1 FROM recommendations WHERE day=? LIMIT 1", (yesterday.isoformat(),)):
-                out["verify"] = verify(store, yesterday)
-            out["audit"] = run_audit(store, yesterday)
-        if now.hour >= VERIFY_LAG_HOURS and os.environ.get("VENICE_API_KEY") and store.one(
-            "SELECT 1 FROM audit_flags WHERE day=? LIMIT 1", (yesterday.isoformat(),)
-        ):
-            try:  # the bulletin is prose on top of the audit; it never blocks the data pipeline
-                out["bulletin"] = make_bulletin(store, yesterday)
-            except Exception as e:
-                log.warning("bulletin failed: %r", e)
-                out["bulletin"] = {"error": e.__class__.__name__}
-        if now.minute < 15:  # once an hour, last, and isolated: proofs never block the data pipeline
-            try:
-                out["proofs"] = upgrade_proofs(store)
-            except Exception as e:
-                log.warning("proof upgrade pass failed: %r", e)
-                out["proofs"] = {"error": e.__class__.__name__}
-        store.x("UPDATE runs SET finished_at=?, ok=1, detail=? WHERE id=?", (now_ist().isoformat(), json.dumps(out, default=str), run_id))
-    except Exception as e:  # recorded, then re-raised so the scheduler sees the failure
-        store.x("UPDATE runs SET finished_at=?, ok=0, detail=? WHERE id=?", (now_ist().isoformat(), repr(e), run_id))
-        raise
+            stage("verify", lambda: verify(store, yesterday))
+        if not store.one("SELECT 1 FROM events WHERE kind='audit_done' AND meta=?", (json.dumps({"day": yesterday.isoformat()}),)):
+
+            def audit_once():
+                res = run_audit(store, yesterday)
+                store.event("audit_done", now.isoformat(), {"day": yesterday.isoformat()})
+                return res
+
+            stage("audit", audit_once)
+        if os.environ.get("VENICE_API_KEY") and store.one(
+            "SELECT 1 FROM events WHERE kind='audit_done' AND meta=?", (json.dumps({"day": yesterday.isoformat()}),)
+        ) and not store.one("SELECT 1 FROM bulletins WHERE day=?", (yesterday.isoformat(),)):
+            stage("bulletin", lambda: make_bulletin(store, yesterday))
+
+    if now.minute < 15:  # once an hour
+        stage("proofs", lambda: upgrade_proofs(store))
+
+    if errors:
+        out["errors"] = errors
+    store.x(
+        "UPDATE runs SET finished_at=?, ok=?, detail=? WHERE id=?",
+        (now_ist().isoformat(), 0 if errors else 1, json.dumps(out, default=str), run_id),
+    )
     return out

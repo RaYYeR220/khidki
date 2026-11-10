@@ -48,9 +48,15 @@ def get_store() -> Store:
 
 
 def _cams_point(lat: float, lon: float) -> dict[datetime, float]:
+    return _cams_cached(round(lat, 2), round(lon, 2), now_ist().strftime("%Y%m%d%H"))
+
+
+@lru_cache(maxsize=512)
+def _cams_cached(lat: float, lon: float, hour_key: str) -> dict[datetime, float]:
     from .sources.openmeteo import OpenMeteo
 
-    return OpenMeteo().cams(lat, lon, past_days=1, forecast_days=2).series("pm2_5")
+    # 16 past days let the bias correction learn this place's offset from the monitors
+    return OpenMeteo().cams(lat, lon, past_days=16, forecast_days=2).series("pm2_5")
 
 
 def _bad(e: Exception) -> HTTPException:

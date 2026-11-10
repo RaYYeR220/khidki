@@ -314,3 +314,25 @@ def test_bulletin_written_once_per_day():
     assert res == {"day": "2026-11-09", "status": "written", "flags": 1}
     assert jobs.make_bulletin(s, date(2026, 11, 9), writer=lambda d: "again")["status"] == "exists"
     assert s.one("SELECT text FROM bulletins")["text"] == "bulletin for 2026-11-09"
+
+
+def test_two_frozen_stretches_make_one_flag():
+    d0 = ds(date(2026, 11, 10))
+    s = {d0 + timedelta(hours=h): (150.0 if h < 5 else 200.0 if 10 <= h < 15 else 100.0 + h) for h in range(24)}
+    flags = [f for f in audit_day(d0, {"a": (28.6, 77.2)}, {"a": s}) if f.kind == "frozen_value"]
+    assert len(flags) == 1 and flags[0].detail["hours"] == 10 and len(flags[0].detail["runs"]) == 2
+
+
+def test_tick_stage_failure_does_not_block_publish(monkeypatch):
+    s = Store(":memory:")
+    s.upsert_stations([{"id": "oaq:1", "source": "openaq", "name": "A", "lat": 28.6, "lon": 77.2}], now="x")
+    day0 = date(2026, 10, 20)
+    s.put_obs("oaq:1", synthetic(day0, 21))
+    s.put_cams("oaq:1", synthetic(day0, 23, base=50.0), "2026-11-10T20:00:00+05:30")
+    monkeypatch.setattr(jobs, "run_audit", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(jobs, "submit_opentimestamps", lambda sha: {})
+    now = ds(date(2026, 11, 10)) + timedelta(hours=21, minutes=20)
+    out = jobs.tick(s, latest=None, cams=None, now=now)
+    assert out["publish"]["status"] == "published"
+    assert "audit" in out["errors"]
+    assert s.one("SELECT ok FROM runs ORDER BY id DESC LIMIT 1")["ok"] == 0
