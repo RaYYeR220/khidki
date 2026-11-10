@@ -246,11 +246,24 @@ def monitor_health(day: str = "") -> dict:
         (day,),
     )
     audited = store.one("SELECT COUNT(*) n FROM stations WHERE active=1")["n"]
+    by_kind: dict[str, int] = {}
+    by_city: dict[str, set] = {}
+    for r in rows:
+        by_kind[r["kind"]] = by_kind.get(r["kind"], 0) + 1
+        by_city.setdefault(r["city"] or "unknown", set()).add(r["station_id"])
+    rank = {"high": 0, "warn": 1, "info": 2}
+    ordered = sorted(rows, key=lambda r: (rank.get(r["severity"], 3), r["city"] or "", r["name"] or ""))
     return {
         "status": "ok" if rows or audited else "no_data",
         "day": day,
-        "monitors_audited": audited,
-        "flags": [{**{k: r[k] for k in ("station_id", "name", "city", "kind", "severity")}, "detail": json.loads(r["detail"])} for r in rows][:200],
+        # exact counts: use these, never count the list yourself
+        "summary": {
+            "monitors_audited": audited,
+            "monitors_with_any_flag": len({r["station_id"] for r in rows}),
+            "flags_by_kind": by_kind,
+            "monitors_flagged_by_city": dict(sorted(((c, len(v)) for c, v in by_city.items()), key=lambda kv: -kv[1])[:25]),
+        },
+        "flags": [{**{k: r[k] for k in ("station_id", "name", "city", "kind", "severity")}, "detail": json.loads(r["detail"])} for r in ordered][:200],
     }
 
 
