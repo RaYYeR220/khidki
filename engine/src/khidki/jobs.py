@@ -352,15 +352,24 @@ def upgrade_proofs(store: Store, upgrade=None) -> dict:
     for r in store.q("SELECT id, meta FROM events WHERE kind='ots_proof' ORDER BY id"):
         m = json.loads(r["meta"])
         latest[m["day"]] = m
-    done = 0
+    done, failed = 0, []
     for day, m in latest.items():
         if m.get("complete"):
             continue
-        new, complete = upgrade(bytes.fromhex(m["ots_hex"]))
+        try:
+            new, complete = upgrade(bytes.fromhex(m["ots_hex"]))
+        except Exception as e:  # one bad proof must never block the rest of the pipeline
+            log.warning("proof upgrade for %s failed: %r", day, e)
+            failed.append(day)
+            continue
         if complete or new.hex() != m["ots_hex"]:
             store.event("ots_proof", now_ist().isoformat(), {"day": day, "ots_hex": new.hex(), "complete": complete})
             done += int(complete)
-    return {"pending_days": sum(1 for m in latest.values() if not m.get("complete")), "completed_now": done}
+    return {
+        "pending_days": sum(1 for m in latest.values() if not m.get("complete")),
+        "completed_now": done,
+        "failed": failed,
+    }
 
 
 # --- the hourly tick -------------------------------------------------------------------
@@ -385,8 +394,6 @@ def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, 
                 out["cams"] = ingest_cams(store, cams)
         if now.hour >= PUBLISH_HOUR:
             out["publish"] = publish(store, tomorrow, issued_at=now)
-        if now.minute < 15:  # once an hour
-            out["proofs"] = upgrade_proofs(store)
         yesterday = now.date() - timedelta(days=1)
         if now.hour >= VERIFY_LAG_HOURS and not store.one(
             "SELECT 1 FROM verdicts WHERE day=? LIMIT 1", (yesterday.isoformat(),)
@@ -394,6 +401,12 @@ def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, 
             if store.one("SELECT 1 FROM recommendations WHERE day=? LIMIT 1", (yesterday.isoformat(),)):
                 out["verify"] = verify(store, yesterday)
             out["audit"] = run_audit(store, yesterday)
+        if now.minute < 15:  # once an hour, last, and isolated: proofs never block the data pipeline
+            try:
+                out["proofs"] = upgrade_proofs(store)
+            except Exception as e:
+                log.warning("proof upgrade pass failed: %r", e)
+                out["proofs"] = {"error": e.__class__.__name__}
         store.x("UPDATE runs SET finished_at=?, ok=1, detail=? WHERE id=?", (now_ist().isoformat(), json.dumps(out, default=str), run_id))
     except Exception as e:  # recorded, then re-raised so the scheduler sees the failure
         store.x("UPDATE runs SET finished_at=?, ok=0, detail=? WHERE id=?", (now_ist().isoformat(), repr(e), run_id))

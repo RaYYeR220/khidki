@@ -262,3 +262,11 @@ def test_upgrade_ots_never_contacts_unknown_calendars(monkeypatch):
     monkeypatch.setattr("opentimestamps.calendar.RemoteCalendar", Spy)
     out, verified = ledger.upgrade_ots(ctx.getbytes(), header_for=lambda h: None)
     assert contacted == [] and verified is False
+
+
+def test_bad_proof_does_not_block_other_days():
+    s = Store(":memory:")
+    s.event("ots_proof", "x", {"day": "2026-11-12", "ots_hex": "zz"})  # not even hex
+    s.event("ots_proof", "x", {"day": "2026-11-13", "ots_hex": "00"})
+    res = jobs.upgrade_proofs(s, lambda b: (b, True))
+    assert res["failed"] == ["2026-11-12"] and res["completed_now"] == 1
