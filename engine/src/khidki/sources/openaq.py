@@ -11,6 +11,7 @@ import csv
 import gzip
 import io
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
@@ -119,8 +120,21 @@ class Location:
     is_monitor: bool = True
 
 
+def city_from_name(name: str) -> str | None:
+    """CPCB monitor names look like "R K Puram, Delhi - DPCC": the city sits
+    between the last comma and the " - <agency>" suffix."""
+    base = name.split(" - ")[0]
+    if "," in base:
+        city = base.rsplit(",", 1)[1].strip()
+        return city or None
+    return None
+
+
 class OpenAQClient:
-    """Thin v3 client. Requires OPENAQ_API_KEY."""
+    """Thin v3 client. Requires OPENAQ_API_KEY. Respects the per-minute limit
+    reported in the X-Ratelimit-* headers and retries once on 429."""
+
+    INDIA = 9  # OpenAQ countries_id
 
     def __init__(self, api_key: str | None = None, client: httpx.Client | None = None):
         key = api_key or os.environ.get("OPENAQ_API_KEY")
@@ -129,9 +143,20 @@ class OpenAQClient:
         self.client = client or httpx.Client(
             timeout=30.0, headers={"X-API-Key": key, "user-agent": "khidki/0.1"}
         )
+        self.calls = 0
 
     def _get(self, path: str, params: dict | None = None) -> dict:
-        r = self.client.get(f"{API}{path}", params=params or {})
+        for attempt in range(3):
+            r = self.client.get(f"{API}{path}", params=params or {})
+            self.calls += 1
+            if r.status_code == 429 or (500 <= r.status_code < 600 and attempt < 2):
+                time.sleep(min(60, int(r.headers.get("x-ratelimit-reset", "5") or 5) + 1))
+                continue
+            r.raise_for_status()
+            remaining = r.headers.get("x-ratelimit-remaining")
+            if remaining is not None and int(remaining) <= 1:
+                time.sleep(int(r.headers.get("x-ratelimit-reset", "60") or 60) + 1)
+            return r.json()
         r.raise_for_status()
         return r.json()
 
@@ -141,21 +166,21 @@ class OpenAQClient:
         while True:
             data = self._get(
                 "/locations",
-                {"iso": "IN", "parameters_id": PM25_PARAMETER_ID, "limit": 1000, "page": page},
+                {"countries_id": self.INDIA, "parameters_id": PM25_PARAMETER_ID, "limit": 1000, "page": page},
             )
             for loc in data.get("results", []):
-                sensor = next(
-                    (s for s in loc.get("sensors", []) if s.get("parameter", {}).get("name") == "pm25"),
-                    None,
-                )
+                # a monitor may list an old and a current PM2.5 sensor; the current one has the larger id
+                pm = [s for s in loc.get("sensors", []) if (s.get("parameter") or {}).get("name") == "pm25"]
+                sensor = max(pm, key=lambda s: s["id"]) if pm else None
                 coords = loc.get("coordinates") or {}
+                name = loc.get("name") or str(loc["id"])
                 out.append(
                     Location(
                         id=loc["id"],
-                        name=loc.get("name") or str(loc["id"]),
+                        name=name,
                         lat=coords.get("latitude"),
                         lon=coords.get("longitude"),
-                        locality=loc.get("locality"),
+                        locality=loc.get("locality") or city_from_name(name),
                         provider=(loc.get("provider") or {}).get("name"),
                         pm25_sensor_id=sensor["id"] if sensor else None,
                         last_seen=((loc.get("datetimeLast") or {}).get("utc")),
@@ -168,15 +193,15 @@ class OpenAQClient:
         return out
 
     def sensor_hours(self, sensor_id: int, start: datetime, end: datetime) -> dict[datetime, float]:
-        """Hourly means for one sensor; keyed by hour start."""
+        """Hourly means for one sensor, keyed by hour start (IST)."""
         out: dict[datetime, float] = {}
         page = 1
         while True:
             data = self._get(
                 f"/sensors/{sensor_id}/hours",
                 {
-                    "datetime_from": start.isoformat(),
-                    "datetime_to": end.isoformat(),
+                    "datetime_from": start.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "datetime_to": end.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "limit": 1000,
                     "page": page,
                 },
@@ -184,38 +209,10 @@ class OpenAQClient:
             res = data.get("results", [])
             for r in res:
                 period = r.get("period") or {}
-                frm = (period.get("datetimeFrom") or {}).get("local") or (period.get("datetimeFrom") or {}).get("utc")
+                frm = (period.get("datetimeFrom") or {}).get("utc")
                 if frm is None or r.get("value") is None:
                     continue
-                out[datetime.fromisoformat(frm.replace("Z", "+00:00"))] = float(r["value"])
-            if len(res) < 1000:
-                break
-            page += 1
-        return out
-
-    def latest(self) -> list[tuple[int, datetime, float]]:
-        """(location_id, hour_start, value) for every location's latest PM2.5.
-        OpenAQ stamps the END of the averaging hour; we key by hour start."""
-        out: list[tuple[int, datetime, float]] = []
-        for r in self.latest_pm25():
-            dt = (r.get("datetime") or {}).get("local") or (r.get("datetime") or {}).get("utc")
-            loc = r.get("locationsId") or r.get("locationId")
-            val = r.get("value")
-            if dt is None or loc is None or val is None:
-                continue
-            end = datetime.fromisoformat(dt.replace("Z", "+00:00"))
-            hour_end = end.replace(minute=0, second=0, microsecond=0)
-            out.append((int(loc), (hour_end - timedelta(hours=1)).astimezone(IST), float(val)))
-        return out
-
-    def latest_pm25(self) -> list[dict]:
-        """Latest PM2.5 value for every location (all countries); filter by id."""
-        out: list[dict] = []
-        page = 1
-        while True:
-            data = self._get(f"/parameters/{PM25_PARAMETER_ID}/latest", {"limit": 1000, "page": page})
-            res = data.get("results", [])
-            out.extend(res)
+                out[datetime.fromisoformat(frm.replace("Z", "+00:00")).astimezone(IST)] = float(r["value"])
             if len(res) < 1000:
                 break
             page += 1

@@ -108,6 +108,40 @@ def ingest_latest(store: Store, source: LatestSource) -> int:
     return n
 
 
+class HoursSource(Protocol):
+    def sensor_hours(self, sensor_id: int, start: datetime, end: datetime) -> dict[datetime, float]: ...
+
+
+def sync_hours(store: Store, source: HoursSource, *, budget: int = 100, lookback_days: int = 16, now: datetime | None = None) -> dict:
+    """Refresh hourly readings for the monitors whose data is stalest, one API
+    call each (OpenAQ hourly means of the 15-minute readings). Monitors never
+    seen before get ``lookback_days`` of history in that same call."""
+    now = now or now_ist()
+    floor = now - timedelta(days=lookback_days)
+    rows = store.q(
+        """SELECT s.id, s.sensor_id, (SELECT MAX(hour) FROM obs o WHERE o.station_id=s.id) last
+           FROM stations s WHERE s.active=1 AND s.sensor_id IS NOT NULL"""
+    )
+    rows = sorted(rows, key=lambda r: r["last"] or "")
+    done = readings = failed = 0
+    for r in rows[:budget]:
+        since = datetime.fromisoformat(r["last"]) - timedelta(hours=3) if r["last"] else floor
+        since = max(since, floor)
+        try:
+            series = source.sensor_hours(int(r["sensor_id"]), since, now)
+        except Exception as e:  # one monitor failing must not stop the others
+            log.info("hours for %s failed: %r", r["id"], e)
+            failed += 1
+            continue
+        series = {t: v for t, v in series.items() if 0 < v < 1500}
+        if series:
+            readings += store.put_obs(r["id"], series)
+            last = max(series).isoformat()
+            store.x("UPDATE stations SET last_seen=? WHERE id=? AND (last_seen IS NULL OR last_seen<?)", (last, r["id"], last))
+        done += 1
+    return {"monitors_refreshed": done, "readings": readings, "failed": failed, "monitors_total": len(rows)}
+
+
 def ingest_cams(store: Store, source: CamsSource, *, past_days: int = 15, forecast_days: int = 3, batch: int = 50) -> int:
     coords = station_coords(store)
     ids = sorted(coords)
@@ -375,7 +409,14 @@ def upgrade_proofs(store: Store, upgrade=None) -> dict:
 # --- the hourly tick -------------------------------------------------------------------
 
 
-def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, now: datetime | None = None) -> dict:
+def tick(
+    store: Store,
+    *,
+    latest: LatestSource | None,
+    cams: CamsSource | None,
+    now: datetime | None = None,
+    hours_budget: int = 100,
+) -> dict:
     """Run whatever is due. Idempotent: safe to call every hour (or more)."""
     now = now or now_ist()
     out: dict = {"now": now.isoformat()}
@@ -385,7 +426,9 @@ def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, 
             last = store.one("SELECT MAX(updated_at) u FROM stations WHERE source='openaq'")
             if not last or not last["u"] or datetime.fromisoformat(last["u"]) < now - timedelta(hours=20):
                 out["stations"] = refresh_stations(store, latest)
-        if latest is not None:
+        if latest is not None and hasattr(latest, "sensor_hours"):
+            out["hours"] = sync_hours(store, latest, budget=hours_budget, now=now)
+        elif latest is not None:
             out["obs"] = ingest_latest(store, latest)
         tomorrow = now.date() + timedelta(days=1)
         if now.hour >= PUBLISH_HOUR - 1 and cams is not None:

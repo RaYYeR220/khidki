@@ -270,3 +270,38 @@ def test_bad_proof_does_not_block_other_days():
     s.event("ots_proof", "x", {"day": "2026-11-13", "ots_hex": "00"})
     res = jobs.upgrade_proofs(s, lambda b: (b, True))
     assert res["failed"] == ["2026-11-12"] and res["completed_now"] == 1
+
+
+def test_sync_hours_refreshes_stalest_first_with_lookback():
+    from types import SimpleNamespace as NS
+
+    s = Store(":memory:")
+    s.upsert_stations(
+        [
+            {"id": "oaq:1", "source": "openaq", "name": "A", "lat": 28.6, "lon": 77.2, "sensor_id": 11},
+            {"id": "oaq:2", "source": "openaq", "name": "B", "lat": 28.7, "lon": 77.3, "sensor_id": 22},
+        ],
+        now="x",
+    )
+    now = ds(date(2026, 11, 10)) + timedelta(hours=15)
+    s.put_obs("oaq:1", {now - timedelta(hours=2): 100.0})
+    calls = []
+
+    def hours(sensor_id, start, end):
+        calls.append((sensor_id, start, end))
+        return {end - timedelta(hours=1): 120.0, end - timedelta(hours=2): -3.0}
+
+    res = jobs.sync_hours(s, NS(sensor_hours=hours), budget=1, now=now)
+    assert res["monitors_refreshed"] == 1 and calls[0][0] == 22  # never-seen monitor first
+    assert calls[0][1] == now - timedelta(days=16)  # full lookback on first sight
+    assert s.get_obs("oaq:2", now - timedelta(days=1), now) == {now - timedelta(hours=1): 120.0}  # bad value dropped
+    jobs.sync_hours(s, NS(sensor_hours=hours), budget=1, now=now)
+    assert calls[1][0] == 11 and calls[1][1] == now - timedelta(hours=5)  # resumes 3 h before its last reading
+
+
+def test_city_from_cpcb_name():
+    from khidki.sources.openaq import city_from_name
+
+    assert city_from_name("R K Puram, Delhi - DPCC") == "Delhi"
+    assert city_from_name("Bandra Kurla Complex, Mumbai - IITM") == "Mumbai"
+    assert city_from_name("Lonely Station") is None

@@ -266,6 +266,24 @@ def job_tick(authorization: str | None = Header(None), store: Store = Depends(ge
     return out
 
 
+@app.post("/jobs/sync")
+def job_sync(budget: int = Query(100, ge=1, le=600), authorization: str | None = Header(None), store: Store = Depends(get_store)) -> dict:
+    """Refresh station registry and hourly readings for up to ``budget`` monitors
+    (used to bootstrap a new deployment; the tick does the same in small steps)."""
+    token = os.environ.get("KHIDKI_JOB_TOKEN")
+    if not token or not hmac.compare_digest((authorization or "").encode(), f"Bearer {token}".encode()):
+        raise HTTPException(401, "unauthorised")
+    from .sources.openaq import OpenAQClient
+
+    client = OpenAQClient()
+    out = {}
+    if not store.one("SELECT 1 FROM stations WHERE source='openaq' LIMIT 1"):
+        out["stations"] = jobs.refresh_stations(store, client)
+    out["hours"] = jobs.sync_hours(store, client, budget=budget)
+    out["api_calls"] = client.calls
+    return out
+
+
 async def _planner_reply(person_id: int, lat: float | None, lon: float | None, text: str) -> str:
     from .agents.runtime import run_turn
 
