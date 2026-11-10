@@ -323,6 +323,18 @@ def job_sync(budget: int = Query(100, ge=1, le=600), authorization: str | None =
     return out
 
 
+@app.post("/jobs/bulletin")
+def job_bulletin(day: str, force: bool = False, authorization: str | None = Header(None), store: Store = Depends(get_store)) -> dict:
+    token = os.environ.get("KHIDKI_JOB_TOKEN")
+    if not token or not hmac.compare_digest((authorization or "").encode(), f"Bearer {token}".encode()):
+        raise HTTPException(401, "unauthorised")
+    try:
+        d = date.fromisoformat(day)
+    except ValueError as e:
+        raise _bad(e) from e
+    return jobs.make_bulletin(store, d, force=force)
+
+
 async def _planner_reply(person_id: int, lat: float | None, lon: float | None, text: str) -> str:
     from .agents.runtime import run_turn
 

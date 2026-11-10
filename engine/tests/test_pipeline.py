@@ -336,3 +336,9 @@ def test_tick_stage_failure_does_not_block_publish(monkeypatch):
     assert out["publish"]["status"] == "published"
     assert "audit" in out["errors"]
     assert s.one("SELECT ok FROM runs ORDER BY id DESC LIMIT 1")["ok"] == 0
+
+
+def test_clean_bulletin_drops_working_notes():
+    raw = "I need to count the monitors first.\n\nI'll keep it short.\n\n**Monitor health, 9 Nov**\n\nOf 480 monitors..."
+    assert jobs.clean_bulletin(raw).startswith("**Monitor health, 9 Nov**")
+    assert jobs.clean_bulletin("Of 480 monitors audited...") == "Of 480 monitors audited..."

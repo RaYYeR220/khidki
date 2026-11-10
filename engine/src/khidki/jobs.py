@@ -376,10 +376,23 @@ def run_audit(store: Store, target: date) -> dict:
     return {"day": target.isoformat(), "stations": len(coords), "flags": len(flags), "by_kind": kinds}
 
 
-def make_bulletin(store: Store, target: date, writer=None) -> dict:
+def clean_bulletin(text: str) -> str:
+    """Drop any leading first-person working notes ("I need to…", "I'll…") a
+    model may emit before the bulletin itself."""
+    paras = [p for p in text.strip().split("
+
+")]
+    while paras and paras[0].lstrip("*# ").startswith(("I ", "I'", "Let me", "First,", "Okay", "OK,")):
+        paras.pop(0)
+    return "
+
+".join(paras).strip()
+
+
+def make_bulletin(store: Store, target: date, writer=None, force: bool = False) -> dict:
     """Have the auditor agent write the day's monitor-health bulletin from the
     stored flags (English and Hindi). ``writer`` is injectable for tests."""
-    if store.one("SELECT 1 FROM bulletins WHERE day=?", (target.isoformat(),)):
+    if not force and store.one("SELECT 1 FROM bulletins WHERE day=?", (target.isoformat(),)):
         return {"day": target.isoformat(), "status": "exists"}
     n = store.one("SELECT COUNT(*) n FROM audit_flags WHERE day=?", (target.isoformat(),))["n"]
     if writer is None:
@@ -388,10 +401,11 @@ def make_bulletin(store: Store, target: date, writer=None) -> dict:
         from .agents.runtime import run_turn
 
         def writer(day: str) -> str:
-            t = asyncio.run(run_turn("auditor", "system", f"Write the monitor health bulletin for {day}.", session_id=f"bulletin-{day}"))
+            sid = f"bulletin-{day}-{now_ist().strftime('%H%M%S')}"  # fresh conversation each time
+            t = asyncio.run(run_turn("auditor", "system", f"Write the monitor health bulletin for {day}.", session_id=sid))
             return t.text
 
-    text = writer(target.isoformat())
+    text = clean_bulletin(writer(target.isoformat()) or "")
     if not text:
         return {"day": target.isoformat(), "status": "empty"}
     store.x(
