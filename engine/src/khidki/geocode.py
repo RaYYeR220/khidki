@@ -5,20 +5,40 @@ from __future__ import annotations
 
 import threading
 import time
-from functools import lru_cache
+from collections import OrderedDict
 
 import httpx
 
+from .ratelimit import RateLimiter
+
 _lock = threading.Lock()
 _last = [0.0]
+_cache: OrderedDict[tuple[str, int], tuple[dict, ...]] = OrderedDict()
+_cache_lock = threading.Lock()
+_upstream = RateLimiter(rate_per_min=55, burst=5)  # spent only on cache misses
 UA = "khidki-air/0.1 (clean-air window planner; https://github.com/RaYYeR220/khidki)"
 
 
-@lru_cache(maxsize=2048)
 def search(q: str, limit: int = 5) -> tuple[dict, ...]:
     q = " ".join(q.split())[:120]
     if len(q) < 2:
         return ()
+    key = (q.lower(), limit)
+    with _cache_lock:
+        if key in _cache:
+            _cache.move_to_end(key)
+            return _cache[key]
+    if not _upstream.allow("nominatim"):
+        raise Busy("place search is busy, try again in a moment")
+    out = _search_upstream(q, limit)
+    with _cache_lock:
+        _cache[key] = out
+        while len(_cache) > 2048:
+            _cache.popitem(last=False)
+    return out
+
+
+def _search_upstream(q: str, limit: int) -> tuple[dict, ...]:
     # One request in flight at a time, at most one per second (Nominatim policy).
     # Callers that would wait more than ~3 s are turned away instead of queueing.
     if not _lock.acquire(timeout=3):
