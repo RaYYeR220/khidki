@@ -25,7 +25,8 @@ gcloud run deploy "$SERVICE" --project "$PROJECT" --region "$REGION" --source . 
 
 URL=$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format 'value(status.url)')
 SA=$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format 'value(spec.template.spec.serviceAccountName)')
-gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" --member "serviceAccount:$SA" --role roles/storage.objectAdmin >/dev/null
+# The service account needs read/write on the bucket (skip if already granted).
+[ -z "${SKIP_IAM:-}" ] && gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" --member "serviceAccount:$SA" --role roles/storage.objectAdmin >/dev/null
 
 gcloud scheduler jobs describe khidki-tick --project "$PROJECT" --location "$REGION" >/dev/null 2>&1 && \
   gcloud scheduler jobs delete khidki-tick --project "$PROJECT" --location "$REGION" --quiet
