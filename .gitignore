@@ -33,25 +33,11 @@ engine/data/cache/
 .codenow/runs/
 .codenow.local.json
 
-# local working notes / never published
-BRIEF.md
-SHIP-STATE.md
-ALTERNATIVES.md
-*-internal/
-*-backup*
-*.bundle
-.remember/
-MEMORY.md
-superpowers/
-docs/superpowers/
-.agents/
+# local tooling
 .claude/
-notes/
+.vscode/
+.idea/
 scratch/
-ui-prototypes/
-mockups/
-design-ref/
-variants/
 
 # os
 .DS_Store
