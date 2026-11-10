@@ -1,0 +1,141 @@
+.strip {
+  width: 100%;
+}
+
+.readout {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 10px;
+  min-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.lg .track {
+  height: 64px;
+}
+
+.sm .track {
+  height: 30px;
+  gap: 1.5px;
+}
+
+.cell {
+  position: relative;
+  border-radius: 1px;
+}
+
+.forecast::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, rgba(21, 19, 15, 0) 0 3.5px, rgba(21, 19, 15, 0.3) 3.5px 4.5px);
+  border-radius: 1px;
+}
+
+.measured::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: var(--ink-2);
+}
+
+.sm .measured::before {
+  display: none;
+}
+
+.win,
+.usual {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  pointer-events: none;
+  border-radius: var(--r);
+}
+
+.win {
+  border: 1.5px solid var(--light);
+  background: rgba(242, 176, 74, 0.1);
+}
+
+.usual {
+  border: 1px solid var(--ink);
+  opacity: 0.85;
+}
+
+.sm .win,
+.sm .usual {
+  top: -3px;
+  bottom: -3px;
+}
+
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.sm .ticks {
+  margin-top: 8px;
+  font-size: 11px;
+}
+
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 1px;
+}
+
+.kWin {
+  border: 1.5px solid var(--light);
+  background: rgba(242, 176, 74, 0.1);
+}
+
+.kUsual {
+  border: 1px solid var(--ink);
+}
+
+.kMeasured {
+  background: var(--haze-2);
+}
+
+.kForecast {
+  background: repeating-linear-gradient(135deg, rgba(21, 19, 15, 0) 0 3.5px, rgba(21, 19, 15, 0.3) 3.5px 4.5px), var(--haze-2);
+}
+
+.kScale {
+  width: 34px !important;
+  background: linear-gradient(90deg, var(--haze-1), var(--haze-2), var(--haze-3));
+}

@@ -1,0 +1,212 @@
+.secHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px clamp(48px, 6.5vw, 112px);
+  align-items: end;
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.how {
+  display: grid;
+  gap: 8px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
+.how > p > :global(.mono):first-child {
+  display: inline-block;
+  width: 22px;
+  color: var(--light);
+}
+
+.how :global(.mono) {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.tag {
+  font-size: 13.5px;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
+.list {
+  list-style: none;
+  border-top: 1px solid var(--hair-2);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(220px, 1.2fr) minmax(0, 1.6fr);
+  grid-template-areas:
+    "main hash counts"
+    "actions actions actions"
+    "result result result";
+  gap: 18px 32px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+.rowMain {
+  grid-area: main;
+}
+
+.day {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.issued {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.issued :global(.mono) {
+  color: var(--ink-2);
+}
+
+.hashCell {
+  grid-area: hash;
+}
+
+.cellL {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.hash {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: left;
+  word-break: break-all;
+}
+
+.copy {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--hair-2);
+}
+
+.hash:hover .copy {
+  color: var(--ink);
+}
+
+.counts {
+  grid-area: counts;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, auto));
+  gap: 0 28px;
+  justify-content: start;
+}
+
+.counts dt {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.counts dd {
+  font-size: 14px;
+}
+
+.attested {
+  color: var(--light);
+}
+
+.pending {
+  color: var(--ink-2);
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.result {
+  grid-area: result;
+  font-size: 14px;
+}
+
+.result:empty {
+  display: none;
+}
+
+.ok {
+  color: var(--ink);
+  border-left: 2px solid var(--light);
+  padding: 8px 14px;
+  background: rgba(242, 176, 74, 0.06);
+}
+
+.ok > span:first-child {
+  color: var(--light);
+  margin-right: 4px;
+}
+
+.bad {
+  color: var(--light-2);
+  border-left: 2px solid var(--haze-3);
+  padding: 8px 14px;
+}
+
+.ok :global(.mono),
+.bad :global(.mono) {
+  font-size: 13px;
+}
+
+.after {
+  margin-top: 14px;
+}
+
+.miss td {
+  color: var(--ink);
+}
+
+.miss td:nth-child(4) {
+  color: var(--light-2);
+}
+
+.plain {
+  margin-top: 28px;
+  display: grid;
+  gap: 10px;
+  max-width: 760px;
+}
+
+.plain > p:first-child {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.2vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  .secHead {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "main"
+      "hash"
+      "counts"
+      "actions"
+      "result";
+  }
+
+  .counts {
+    gap: 0 20px;
+  }
+}

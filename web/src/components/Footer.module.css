@@ -1,0 +1,77 @@
+.foot {
+  border-top: 1px solid var(--hair);
+  position: relative;
+  z-index: 2;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 48px;
+  padding: 56px 0 40px;
+}
+
+.mark {
+  font-family: var(--serif);
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.hi {
+  font-family: var(--hi);
+  font-size: 20px;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+
+.tag {
+  margin-top: 14px;
+  max-width: 360px;
+  color: var(--ink-3);
+  font-size: 14.5px;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, auto));
+  gap: 48px;
+}
+
+.cols div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cols a {
+  color: var(--ink-2);
+  font-size: 14.5px;
+  transition: color 0.2s;
+}
+
+.cols a:hover {
+  color: var(--ink);
+}
+
+.credits {
+  border-top: 1px solid var(--hair);
+  padding: 20px 0 28px;
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  display: grid;
+  gap: 4px;
+}
+
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 44px 0 32px;
+  }
+
+  .cols {
+    gap: 24px;
+  }
+}

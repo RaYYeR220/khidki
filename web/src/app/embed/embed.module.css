@@ -1,0 +1,118 @@
+.card {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(70% 60% at 85% 20%, rgba(242, 176, 74, 0.07), rgba(242, 176, 74, 0) 70%), var(--ground);
+  border: 1px solid var(--hair-2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.place {
+  font-size: 13px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.when {
+  font-size: 12px;
+  color: var(--ink-3);
+  flex: none;
+}
+
+.kick {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--light);
+}
+
+.big {
+  font-family: var(--serif);
+  font-size: clamp(40px, 14vw, 52px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.line {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.line :global(.mono) {
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+.warn {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--light-2);
+}
+
+.msg {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.strip {
+  margin-top: 12px;
+}
+
+.credit {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.credit a {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.credit a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--light);
+  text-underline-offset: 3px;
+}
+
+.hi {
+  font-family: var(--hi);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.credit > span {
+  text-align: right;
+}

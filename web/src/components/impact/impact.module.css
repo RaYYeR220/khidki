@@ -1,0 +1,92 @@
+.grid {
+  margin-top: clamp(28px, 3.4vw, 44px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--hair-2);
+}
+
+.grid > div {
+  padding: 24px 24px 28px 0;
+  border-bottom: 1px solid var(--hair);
+  display: flex;
+  flex-direction: column;
+}
+
+.grid > div:nth-child(3n + 2),
+.grid > div:nth-child(3n + 3) {
+  padding-left: 24px;
+  border-left: 1px solid var(--hair);
+}
+
+.grid dt {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.n {
+  order: -1;
+  font-family: var(--serif);
+  font-size: clamp(44px, 5vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 12px;
+}
+
+.unit {
+  font-size: 0.4em;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+
+.def {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+.isZero .n {
+  color: var(--ink-3);
+}
+
+.isZero .def {
+  color: var(--ink-2);
+}
+
+.links {
+  margin-top: 26px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid > div,
+  .grid > div:nth-child(3n + 2),
+  .grid > div:nth-child(3n + 3) {
+    padding: 20px 16px 22px 0;
+    border-left: 0;
+  }
+
+  .grid > div:nth-child(2n) {
+    padding-left: 16px;
+    border-left: 1px solid var(--hair);
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid > div,
+  .grid > div:nth-child(2n) {
+    padding: 20px 0;
+    border-left: 0;
+  }
+}

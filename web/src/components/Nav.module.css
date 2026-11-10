@@ -1,0 +1,134 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+  border-bottom: 1px solid var(--hair);
+  position: relative;
+}
+
+.mark {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--serif);
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.hi {
+  font-family: var(--hi);
+  font-size: 20px;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-size: 15px;
+  color: var(--ink-3);
+}
+
+.opt {
+  transition: color 0.2s;
+}
+
+.opt:hover,
+.opt[aria-current="page"] {
+  color: var(--ink);
+}
+
+.opt[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--light);
+  text-underline-offset: 8px;
+  text-decoration-thickness: 1px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--hair-2);
+  border-radius: var(--r);
+  color: var(--ink);
+  transition: border-color 0.2s;
+}
+
+.cta:hover {
+  border-color: rgba(241, 236, 226, 0.4);
+}
+
+.menu {
+  display: none;
+}
+
+.menuBtn {
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.sheet {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 1px);
+  z-index: 30;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--hair-2);
+  border-radius: var(--r);
+  padding: 6px 0;
+}
+
+.sheet a {
+  padding: 12px 18px;
+  color: var(--ink-2);
+  font-size: 15px;
+}
+
+.sheet a:hover,
+.sheet a[aria-current="page"] {
+  color: var(--ink);
+  background: rgba(241, 236, 226, 0.03);
+}
+
+@media (max-width: 1020px) {
+  .opt {
+    display: none;
+  }
+
+  .menu {
+    display: block;
+  }
+
+  .links {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 820px) {
+  .nav {
+    height: 64px;
+  }
+
+  .mark {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hi {
+    display: none;
+  }
+}
