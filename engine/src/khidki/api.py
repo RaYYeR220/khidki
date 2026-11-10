@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
+import hmac
 import json
 import os
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, timedelta
 from functools import lru_cache
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from . import jobs
-from .aqi import HEALTH_STATEMENT, pm25_category
-from .exposure import Activity, AgeBand, inhalation_rate
-from .jobs import at, now_ist
-from .planner import plan_airing, plan_window
-from .point import point_forecast
+from . import jobs, service
+from .aqi import pm25_category
+from .exposure import Activity, AgeBand
+from .jobs import now_ist
 from .store import Store
 
 app = FastAPI(title="Khidki API", version="0.1.0", docs_url="/docs", redoc_url=None)
@@ -39,35 +38,8 @@ def _cams_point(lat: float, lon: float) -> dict[datetime, float]:
     return OpenMeteo().cams(lat, lon, past_days=1, forecast_days=2).series("pm2_5")
 
 
-def _hhmm(s: str) -> time:
-    try:
-        return time.fromisoformat(s)
-    except ValueError as e:
-        raise HTTPException(422, f"bad time {s!r}, use HH:MM") from e
-
-
-def _day(day: str) -> date:
-    today = now_ist().date()
-    if day in ("today", ""):
-        return today
-    if day == "tomorrow":
-        return today + timedelta(days=1)
-    try:
-        return date.fromisoformat(day)
-    except ValueError as e:
-        raise HTTPException(422, "day must be today, tomorrow or YYYY-MM-DD") from e
-
-
-def _slot(s) -> dict | None:
-    if s is None:
-        return None
-    return {
-        "start": s.start.strftime("%H:%M"),
-        "end": s.end.strftime("%H:%M"),
-        "mean_pm25": round(s.mean_conc, 1),
-        "dose_ug": round(s.dose_ug, 1),
-        "category": pm25_category(s.mean_conc),
-    }
+def _bad(e: Exception) -> HTTPException:
+    return HTTPException(422, str(e))
 
 
 @app.get("/v1/health")
@@ -96,54 +68,14 @@ def window(
     day: str = "today",
     store: Store = Depends(get_store),
 ) -> dict:
-    d = _day(day)
-    now = now_ist()
-    pf = point_forecast(store, lat, lon, d, now=now, cams_fallback=_cams_point)
-    if pf.source == "none":
-        return {"status": "no_data", "reason": "no monitor nearby has a forecast for this day yet", "day": d.isoformat()}
-    e, le = at(d, _hhmm(earliest)), at(d, _hhmm(latest_end))
-    if d == now.date():
-        # only future starts make sense for today
-        nxt = (now + timedelta(minutes=15 - now.minute % 15)).replace(second=0, microsecond=0)
-        e = max(e, nxt)
-    hab = at(d, _hhmm(habitual)) if habitual else None
-    if e >= le - timedelta(minutes=minutes):
-        return {"status": "window_closed", "reason": "the allowed time for today has passed", "day": d.isoformat()}
-    plan = plan_window(
-        pf.values,
-        activity=activity,
-        age=age,
-        minutes=minutes,
-        earliest=e,
-        latest_end=le,
-        habitual_start=hab,
-        sigma_log=pf.sigma_log,
-    )
-    store.event("window", now.isoformat(), {"lat": round(lat, 2), "lon": round(lon, 2), "activity": activity.value})
-    return {
-        "status": plan.status,
-        "day": d.isoformat(),
-        "activity": activity.value,
-        "minutes": minutes,
-        "best": _slot(plan.best),
-        "usual": _slot(plan.habitual),
-        "worst": _slot(plan.worst),
-        "alternatives": [_slot(a) for a in plan.alternatives],
-        "dose_avoided_ug": round(plan.dose_avoided_ug, 1) if plan.dose_avoided_ug is not None else None,
-        "reduction_pct": round(plan.reduction_pct, 1) if plan.reduction_pct is not None else None,
-        "confidence": round(plan.confidence, 2) if plan.confidence is not None else None,
-        "flags": plan.flags,
-        "health": HEALTH_STATEMENT.get(plan.best_category or "", None),
-        "curve": [
-            {"hour": h.strftime("%H:%M"), "pm25": round(v, 1), "measured": h in pf.measured_hours}
-            for h, v in sorted(pf.values.items())
-        ],
-        "source": pf.source,
-        "neighbours": pf.neighbours,
-        "issued_at": pf.issued_at,
-        "nowcast_factor": round(pf.nowcast_factor, 2) if pf.nowcast_factor else None,
-        "inhalation_m3_per_min": inhalation_rate(activity, age),
-    }
+    try:
+        return service.compute_window(
+            store, lat=lat, lon=lon, activity=activity, minutes=minutes, earliest=earliest,
+            latest_end=latest_end, habitual=habitual or None, age=age, day=day, now=now_ist(),
+            cams_fallback=_cams_point,
+        )
+    except ValueError as e:
+        raise _bad(e) from e
 
 
 @app.get("/v1/airing")
@@ -157,29 +89,18 @@ def airing(
     day: str = "tomorrow",
     store: Store = Depends(get_store),
 ) -> dict:
-    d = _day(day)
-    pf = point_forecast(store, lat, lon, d, cams_fallback=_cams_point)
-    if len(pf.values) < 24:
-        return {"status": "no_data", "day": d.isoformat()}
-    p = plan_airing(
-        pf.values,
-        day_start=jobs.day_start(d),
-        open_minutes=open_minutes,
-        earliest=at(d, _hhmm(earliest)),
-        latest_end=at(d, _hhmm(latest_end)),
-        habitual_start=at(d, _hhmm(habitual)) if habitual else None,
-    )
-    return {
-        "status": p.status,
-        "day": d.isoformat(),
-        "open_at": p.best_start.strftime("%H:%M") if p.best_start else None,
-        "open_minutes": open_minutes,
-        "usual": habitual,
-        "reduction_pct": round(p.reduction_pct, 1) if p.reduction_pct is not None else None,
-        "dose_avoided_ug": round(p.dose_avoided_ug, 1) if p.dose_avoided_ug is not None else None,
-        "flags": p.flags,
-        "source": pf.source,
-    }
+    try:
+        return service.compute_airing(
+            store, lat=lat, lon=lon, open_minutes=open_minutes, earliest=earliest, latest_end=latest_end,
+            habitual=habitual or None, day=day, now=now_ist(), cams_fallback=_cams_point,
+        )
+    except ValueError as e:
+        raise _bad(e) from e
+
+
+@app.get("/v1/air-now")
+def air_now(lat: float = Query(..., ge=6, le=37.5), lon: float = Query(..., ge=68, le=97.5), store: Store = Depends(get_store)) -> dict:
+    return service.air_now(store, lat, lon, now_ist())
 
 
 @app.get("/v1/stations")
@@ -203,7 +124,10 @@ def station(sid: str, day: str = "today", store: Store = Depends(get_store)) -> 
     s = store.one("SELECT * FROM stations WHERE id=?", (sid,))
     if not s:
         raise HTTPException(404, "unknown station")
-    d = _day(day)
+    try:
+        d = service.resolve_day(day, now_ist())
+    except ValueError as e:
+        raise _bad(e) from e
     ds = jobs.day_start(d)
     obs = store.get_obs(sid, ds, ds + timedelta(days=1))
     fc = store.one("SELECT * FROM forecasts WHERE station_id=? AND day=?", (sid, d.isoformat()))
@@ -301,7 +225,7 @@ def impact(store: Store = Depends(get_store)) -> dict:
 @app.post("/jobs/tick")
 def job_tick(authorization: str | None = Header(None), store: Store = Depends(get_store)) -> dict:
     token = os.environ.get("KHIDKI_JOB_TOKEN")
-    if not token or authorization != f"Bearer {token}":
+    if not token or not hmac.compare_digest((authorization or "").encode(), f"Bearer {token}".encode()):
         raise HTTPException(401, "unauthorised")
     from .sources.openmeteo import OpenMeteo
 
