@@ -116,6 +116,7 @@ class Location:
     provider: str | None
     pm25_sensor_id: int | None
     last_seen: str | None
+    is_monitor: bool = True
 
 
 class OpenAQClient:
@@ -158,6 +159,7 @@ class OpenAQClient:
                         provider=(loc.get("provider") or {}).get("name"),
                         pm25_sensor_id=sensor["id"] if sensor else None,
                         last_seen=((loc.get("datetimeLast") or {}).get("utc")),
+                        is_monitor=bool(loc.get("isMonitor", True)),
                     )
                 )
             if len(data.get("results", [])) < 1000:

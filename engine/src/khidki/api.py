@@ -286,8 +286,11 @@ async def web_chat(request: Request, store: Store = Depends(get_store)) -> dict:
     no person record and no routines (those live in the Telegram bot, where a
     reminder can actually reach someone). The browser sends a random UUIDv4
     that only keys the conversation; location comes with the message."""
-    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
-    if not _chat_global.allow("all") or not _chat_per_ip.allow(ip):
+    # Behind Cloud Run's front end the client address is the right-most entry of
+    # X-Forwarded-For (entries to its left are whatever the client sent).
+    xff = request.headers.get("x-forwarded-for", "")
+    ip = xff.split(",")[-1].strip() if xff else (request.client.host if request.client else "?")
+    if not _chat_per_ip.allow(ip) or not _chat_global.allow("all"):
         raise HTTPException(429, "too many messages, please wait a minute")
     body = await request.json()
     text = str(body.get("text", ""))[:1000].strip()

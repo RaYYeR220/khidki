@@ -203,3 +203,20 @@ def test_audit_job_writes_flags(store):
     store.put_obs("oaq:1", {ds(target) + timedelta(hours=h): 100.0 for h in range(12)})
     res = jobs.run_audit(store, target)
     assert res["by_kind"]["missing_hours"] == 2  # oaq:1 half day, oaq:2 silent
+
+
+def test_refresh_stations_keeps_only_live_reference_monitors():
+    from types import SimpleNamespace as NS
+
+    s = Store(":memory:")
+    now = jobs.now_ist()
+    fresh = (now - timedelta(hours=2)).isoformat()
+    stale = (now - timedelta(days=30)).isoformat()
+    locs = [
+        NS(id=1, name="ITO", lat=28.63, lon=77.24, locality="Delhi", provider="CPCB", pm25_sensor_id=11, last_seen=fresh, is_monitor=True),
+        NS(id=2, name="Old", lat=28.6, lon=77.2, locality="Delhi", provider="CPCB", pm25_sensor_id=12, last_seen=stale, is_monitor=True),
+        NS(id=3, name="LowCost", lat=28.6, lon=77.2, locality="Delhi", provider="X", pm25_sensor_id=13, last_seen=fresh, is_monitor=False),
+    ]
+    res = jobs.refresh_stations(s, NS(india_pm25_locations=lambda: locs))
+    assert res == {"active": 1, "skipped_low_cost_or_no_coords": 1, "skipped_stale": 1}
+    assert [r["id"] for r in s.q("SELECT id FROM stations WHERE active=1")] == ["oaq:1"]

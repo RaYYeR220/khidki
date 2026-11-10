@@ -52,6 +52,47 @@ def station_coords(store: Store) -> dict[str, tuple[float, float]]:
 # --- ingestion -------------------------------------------------------------------------
 
 
+class RegistrySource(Protocol):
+    def india_pm25_locations(self) -> list: ...
+
+
+def refresh_stations(store: Store, source: RegistrySource, *, max_age_days: int = 3) -> dict:
+    """Load India's reference-grade PM2.5 monitors (OpenAQ isMonitor) that have
+    reported within ``max_age_days``. Low-cost sensors are left out on purpose:
+    recommendations are built only on regulatory-grade instruments."""
+    now = now_ist()
+    rows, skipped_sensor, skipped_stale = [], 0, 0
+    for loc in source.india_pm25_locations():
+        if not getattr(loc, "is_monitor", True) or loc.lat is None or loc.lon is None:
+            skipped_sensor += 1
+            continue
+        if loc.last_seen:
+            seen = datetime.fromisoformat(loc.last_seen.replace("Z", "+00:00"))
+            if now - seen > timedelta(days=max_age_days):
+                skipped_stale += 1
+                continue
+        rows.append(
+            {
+                "id": f"oaq:{loc.id}",
+                "source": "openaq",
+                "name": loc.name,
+                "city": loc.locality,
+                "lat": loc.lat,
+                "lon": loc.lon,
+                "provider": loc.provider,
+                "sensor_id": loc.pm25_sensor_id,
+                "last_seen": loc.last_seen,
+            }
+        )
+    n = store.upsert_stations(rows, now.isoformat())
+    live = {r["id"] for r in rows}
+    store.x(
+        f"UPDATE stations SET active=CASE WHEN id IN ({','.join('?' * len(live)) or 'NULL'}) THEN 1 ELSE 0 END WHERE source='openaq'",
+        list(live),
+    )
+    return {"active": n, "skipped_low_cost_or_no_coords": skipped_sensor, "skipped_stale": skipped_stale}
+
+
 def ingest_latest(store: Store, source: LatestSource) -> int:
     known = {r["id"] for r in store.q("SELECT id FROM stations")}
     n = 0
@@ -306,6 +347,10 @@ def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, 
     out: dict = {"now": now.isoformat()}
     run_id = store.x("INSERT INTO runs(job, started_at) VALUES (?,?)", ("tick", now.isoformat()))
     try:
+        if latest is not None and hasattr(latest, "india_pm25_locations"):
+            last = store.one("SELECT MAX(updated_at) u FROM stations WHERE source='openaq'")
+            if not last or not last["u"] or datetime.fromisoformat(last["u"]) < now - timedelta(hours=20):
+                out["stations"] = refresh_stations(store, latest)
         if latest is not None:
             out["obs"] = ingest_latest(store, latest)
         tomorrow = now.date() + timedelta(days=1)

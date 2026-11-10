@@ -54,6 +54,13 @@ async def run_turn(
     runner: Runner | None = None,
 ) -> Turn:
     runner = runner or _runner(agent_name)
+    state = dict(state or {})
+    if state.get("lat") is not None and state.get("lon") is not None:
+        state["location_note"] = (
+            f"saved location {float(state['lat']):.4f}, {float(state['lon']):.4f} (India); tools use it by default"
+        )
+    else:
+        state["location_note"] = "no saved location yet"
     svc = runner.session_service
     sid = session_id or f"{agent_name}:{user_id}"
     sess = await svc.get_session(app_name=APP, user_id=user_id, session_id=sid)

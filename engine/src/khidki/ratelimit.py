@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from collections import OrderedDict
 
 
 class RateLimiter:
@@ -11,15 +12,17 @@ class RateLimiter:
         self.rate = rate_per_min / 60.0
         self.burst = burst
         self.max_keys = max_keys
-        self._b: dict[str, tuple[float, float]] = {}
+        self._b: OrderedDict[str, tuple[float, float]] = OrderedDict()
         self._lock = threading.Lock()
 
     def allow(self, key: str, now: float | None = None) -> bool:
         now = time.monotonic() if now is None else now
         with self._lock:
-            if len(self._b) > self.max_keys:
-                self._b.clear()
+            while len(self._b) >= self.max_keys and key not in self._b:
+                self._b.popitem(last=False)  # evict the least recently seen key
             tokens, last = self._b.get(key, (float(self.burst), now))
+            self._b[key] = (tokens, last)
+            self._b.move_to_end(key)
             tokens = min(self.burst, tokens + (now - last) * self.rate)
             if tokens < 1:
                 self._b[key] = (tokens, now)

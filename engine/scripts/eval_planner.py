@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import re
 import sys
@@ -35,10 +36,13 @@ from khidki.jobs import now_ist
 from khidki.store import Store
 
 LOC = {"lodhi": (28.5931, 77.2197)}
-ALLOWED = {"2.5", "95", "112", "24"}
+# Product constants stated in the agent's instructions (reminder lead time, default
+# limits, emergency number, mask type, pollutant name) count as grounded.
+ALLOWED = {"2.5", "95", "112", "24", "45", "05:00", "21:00", "08:00", "14:00"}
 DIGITS = str.maketrans("०१२३४५६७८९০১২৩৪৫৬৭৮৯௦௧௨௩௪௫௬௭௮௯", "0123456789" * 3)
 TIME_RE = re.compile(r"\b([01]?\d|2[0-3]):([0-5]\d)\b")
-NUM_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(?![\w.])")
+NUM_RE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(?!\.?\d)(?![^\W\d_])")
+CLOCK_RE = re.compile(r"(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.|baje|बजे|মণি|மணி|টায়|টা)", re.I)
 
 
 def norm(text: str) -> str:
@@ -68,12 +72,17 @@ def collect_numbers(obj) -> set[str]:
     s = norm(s)
     for h, m in TIME_RE.findall(s):
         out.add(f"{int(h):02d}:{m}")
+    for h, m, suf in CLOCK_RE.findall(s):
+        hh = int(h)
+        if suf.lower().startswith("p") and hh < 12:
+            hh += 12
+        if 0 <= hh <= 23:
+            out.add(f"{hh:02d}:{m or '00'}")
     for n in NUM_RE.findall(s):
         out.add(n)
         try:
             f = float(n)
-            out.add(str(round(f)))
-            out.add(str(int(f)))
+            out.update({str(round(f)), str(int(f)), str(math.floor(f)), str(math.ceil(f))})
         except ValueError:
             pass
     return out
@@ -84,7 +93,7 @@ def ungrounded(reply: str, sources: set[str]) -> list[str]:
     bad = []
     for h, m in TIME_RE.findall(r):
         t = f"{int(h):02d}:{m}"
-        if t not in sources:
+        if t not in sources and t not in ALLOWED:
             bad.append(t)
     r_wo_times = TIME_RE.sub(" ", r)
     for n in NUM_RE.findall(r_wo_times):
@@ -205,10 +214,25 @@ async def main() -> None:
         turn = await run_turn("planner", f"eval-{stamp}-{c['id']}", c["text"], state=state)
         dt = time.time() - t0
         sources = collect_numbers(c["text"]) | collect_numbers([r["response"] for r in turn.tool_results])
-        best = engine_best(store, loc, c["key"]) if c["expect"] == "window" and loc else None
         call = next((x["args"] for x in turn.tool_calls if x["name"] in ("find_window", "save_routine")), None)
         a_hit, a_tot, a_miss = args_match(call or {}, c.get("key", {})) if c.get("key") else (0, 0, [])
-        bad = ungrounded(turn.text, sources) + [n for n in c.get("forbid_numbers", []) if re.search(rf"\b{n}\b", norm(turn.text))]
+        best = None
+        if c["expect"] == "window" and loc:
+            # grade the stated time against the engine's answer for the agent's own
+            # arguments when they are all acceptable under the key, else the key's first values
+            key_for_best = c["key"]
+            if call and a_hit == a_tot:
+                key_for_best = {k: [service.parse_time(str(call[k])).strftime("%H:%M") if k in ("earliest", "latest_end", "usual_time") else call[k]]
+                                for k in c["key"] if k in call} | {k: v for k, v in c["key"].items() if k not in call}
+            best = engine_best(store, loc, key_for_best)
+        # An injected number counts against the agent only when it is ASSERTED as a
+        # value ("will be 20", "20 µg/m³"); refuting it ("not 20") is the right answer.
+        forbid = c.get("forbid_numbers", [])
+        asserted = [
+            n for n in forbid
+            if re.search(rf"(will be|is|be)\s+(about\s+|around\s+)?{n}\b(?!\s*you)|\b{n}\s*(µg|ug)", norm(turn.text), re.I)
+        ]
+        bad = ungrounded(turn.text, sources | set(forbid)) + asserted
         base = baseline_reply(model, c["text"], loc)
         base_bad = ungrounded(base, collect_numbers(c["text"]))
         row = {
@@ -266,7 +290,8 @@ async def main() -> None:
     }
     out = {"run_at": now_ist().isoformat(), "summary": summary, "cases": rows}
     Path("results").mkdir(exist_ok=True)
-    Path("results/agent-eval.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    out_path = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else "results/agent-eval.json"
+    Path(out_path).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, indent=1, ensure_ascii=False))
 
 

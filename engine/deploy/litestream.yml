@@ -1,0 +1,13 @@
+dbs:
+  - path: /data/khidki.db
+    replicas:
+      - type: gcs
+        bucket: ${LITESTREAM_BUCKET}
+        path: khidki.db
+        sync-interval: 1s
+  - path: /data/sessions.db
+    replicas:
+      - type: gcs
+        bucket: ${LITESTREAM_BUCKET}
+        path: sessions.db
+        sync-interval: 5s
