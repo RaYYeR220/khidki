@@ -1,0 +1,58 @@
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+
+# node
+node_modules/
+.next/
+out/
+.vercel/
+.turbo/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# data caches (results/ is tracked; raw downloads are not)
+data/cache/
+engine/data/cache/
+*.csv.gz
+
+# agent run recordings (AgentFoundry default)
+.codenow/runs/
+.codenow.local.json
+
+# local working notes / never published
+BRIEF.md
+SHIP-STATE.md
+ALTERNATIVES.md
+*-internal/
+*-backup*
+*.bundle
+.remember/
+MEMORY.md
+superpowers/
+docs/superpowers/
+.agents/
+.claude/
+notes/
+scratch/
+ui-prototypes/
+mockups/
+design-ref/
+variants/
+
+# os
+.DS_Store
+Thumbs.db
