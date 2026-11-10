@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import hmac
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from functools import lru_cache
 
@@ -16,6 +18,7 @@ from . import jobs, service
 from .aqi import pm25_category
 from .exposure import Activity, AgeBand
 from .jobs import now_ist
+from .ratelimit import RateLimiter
 from .store import Store
 
 app = FastAPI(title="Khidki API", version="0.1.0", docs_url="/docs", redoc_url=None)
@@ -272,29 +275,39 @@ async def telegram_webhook(
     return {"ok": True}
 
 
+_SESSION_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
+_chat_per_ip = RateLimiter(rate_per_min=6, burst=10)
+_chat_global = RateLimiter(rate_per_min=120, burst=60)
+
+
 @app.post("/v1/chat")
 async def web_chat(request: Request, store: Store = Depends(get_store)) -> dict:
-    """The same planner agent for the web app. Anonymous: the browser keeps a
-    random id; location comes with the message."""
+    """The planner agent for the web app. Anonymous and stateless on our side:
+    no person record and no routines (those live in the Telegram bot, where a
+    reminder can actually reach someone). The browser sends a random UUIDv4
+    that only keys the conversation; location comes with the message."""
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    if not _chat_global.allow("all") or not _chat_per_ip.allow(ip):
+        raise HTTPException(429, "too many messages, please wait a minute")
     body = await request.json()
     text = str(body.get("text", ""))[:1000].strip()
-    anon = str(body.get("session", ""))[:64]
-    if not text or not anon:
-        raise HTTPException(422, "text and session are required")
-    from . import people as ppl
-    from .agents.runtime import run_turn
-
-    pid = ppl.get_or_create_person(store, "web", anon, str(body.get("lang", "en"))[:5])
+    session = str(body.get("session", ""))
+    if not text or not _SESSION_RE.match(session):
+        raise HTTPException(422, "text and a UUIDv4 session are required")
+    state: dict = {"channel": "web"}
     lat, lon = body.get("lat"), body.get("lon")
     if lat is not None and lon is not None:
         try:
-            ppl.set_location(store, pid, float(lat), float(lon))
-        except ValueError as e:
-            raise HTTPException(422, str(e)) from e
-    p = ppl.person(store, pid)
-    state = {"person_id": pid}
-    if p["lat"] is not None:
-        state.update(lat=p["lat"], lon=p["lon"])
-    turn = await run_turn("planner", f"p{pid}", text, state=state)
-    store.event("chat", now_ist().isoformat(), {"channel": "web"})
+            lat, lon = float(lat), float(lon)
+        except (TypeError, ValueError) as e:
+            raise HTTPException(422, "lat/lon must be numbers") from e
+        if not (6 <= lat <= 37.5 and 68 <= lon <= 97.5):
+            raise HTTPException(422, "Khidki covers India only")
+        state.update(lat=lat, lon=lon)
+    from .agents.runtime import run_turn
+
+    key = "web-" + hashlib.sha256(session.encode()).hexdigest()[:24]
+    turn = await run_turn("planner", key, text, state=state)
+    store.event("chat", now_ist().isoformat(), {"channel": "web", "who": key[:12]})
     return {"reply": turn.text, "tools": [c["name"] for c in turn.tool_calls]}
+

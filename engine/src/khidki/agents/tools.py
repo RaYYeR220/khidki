@@ -45,7 +45,9 @@ def _where(tool_context: ToolContext | None, lat: float | None, lon: float | Non
 
 
 def _pid(tool_context: ToolContext | None) -> int | None:
-    if tool_context is None:
+    """The person behind this conversation, only for channels that can receive
+    reminders (Telegram). Web conversations are anonymous."""
+    if tool_context is None or tool_context.state.get("channel") == "web":
         return None
     v = tool_context.state.get("person_id")
     return int(v) if v is not None else None

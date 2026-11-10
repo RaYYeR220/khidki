@@ -76,3 +76,20 @@ def test_impact_counts_are_real(client):
 def test_tick_requires_token(client, monkeypatch):
     monkeypatch.setenv("KHIDKI_JOB_TOKEN", "secret")
     assert client.post("/jobs/tick").status_code == 401
+
+
+def test_web_chat_rejects_bad_session_and_outside_india(client):
+    assert client.post("/v1/chat", json={"text": "hi", "session": "abc"}).status_code == 422
+    sid = "3f1c2b4a-8d9e-4f00-a1b2-c3d4e5f60718"
+    r = client.post("/v1/chat", json={"text": "hi", "session": sid, "lat": 52.2, "lon": 21.0})
+    assert r.status_code == 422
+
+
+def test_rate_limiter():
+    from khidki.ratelimit import RateLimiter
+
+    rl = RateLimiter(rate_per_min=60, burst=2)
+    assert rl.allow("a", now=0) and rl.allow("a", now=0)
+    assert not rl.allow("a", now=0)
+    assert rl.allow("a", now=1.01)
+    assert rl.allow("b", now=0)

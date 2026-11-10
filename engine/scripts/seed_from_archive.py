@@ -4,7 +4,7 @@ tomorrow's windows. For development without an OpenAQ API key.
 usage: uv run python scripts/seed_from_archive.py <db> <location_id:lat:lon:name> [...]
 """
 import sys
-from datetime import date, timedelta
+from datetime import timedelta
 
 from khidki import jobs
 from khidki.sources.openaq import Archive, hourly_pm25

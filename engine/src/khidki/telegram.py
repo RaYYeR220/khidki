@@ -257,7 +257,9 @@ def daily_people_jobs(store: Store, sender: Sender | None, now: datetime | None 
     out: dict = {}
     if now.hour >= 4:
         planned = 0
-        for r in store.q("SELECT DISTINCT person_id FROM routines WHERE active=1"):
+        for r in store.q(
+            "SELECT DISTINCT r.person_id FROM routines r JOIN people p ON p.id=r.person_id WHERE r.active=1 AND p.channel='telegram'"
+        ):
             planned += len(people.plan_day(store, r["person_id"], now.date(), now=now, cams_fallback=cams_fallback))
         out["planned"] = planned
     if sender is not None:
