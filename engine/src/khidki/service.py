@@ -35,6 +35,11 @@ def parse_time(s: str) -> time:
     return time(h, mi)
 
 
+def _check_point(lat: float, lon: float) -> None:
+    if not (6 <= lat <= 37.5 and 68 <= lon <= 97.5):
+        raise ValueError("Khidki covers India only; that location is outside India")
+
+
 def resolve_day(day: str, now: datetime | None = None) -> date:
     today = (now or now_ist()).date()
     d = (day or "today").strip().lower()
@@ -73,6 +78,9 @@ def compute_window(
     cams_fallback: CamsFallback = None,
     log_event: bool = True,
 ) -> dict:
+    if not 10 <= int(minutes) <= 240:
+        raise ValueError("minutes must be between 10 and 240")
+    _check_point(lat, lon)
     now = now or now_ist()
     d = resolve_day(day, now)
     pf = point_forecast(store, lat, lon, d, now=now, cams_fallback=cams_fallback)
@@ -136,6 +144,9 @@ def compute_airing(
     now: datetime | None = None,
     cams_fallback: CamsFallback = None,
 ) -> dict:
+    if not 10 <= int(open_minutes) <= 120:
+        raise ValueError("open_minutes must be between 10 and 120")
+    _check_point(lat, lon)
     d = resolve_day(day, now)
     pf = point_forecast(store, lat, lon, d, now=now, cams_fallback=cams_fallback)
     if len(pf.values) < 24:

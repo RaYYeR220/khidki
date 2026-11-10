@@ -8,7 +8,7 @@ import os
 from datetime import datetime, timedelta
 from functools import lru_cache
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
@@ -234,4 +234,67 @@ def job_tick(authorization: str | None = Header(None), store: Store = Depends(ge
         from .sources.openaq import OpenAQClient
 
         latest = OpenAQClient()
-    return jobs.tick(store, latest=latest, cams=OpenMeteo())
+    out = jobs.tick(store, latest=latest, cams=OpenMeteo())
+    sender = None
+    if os.environ.get("TELEGRAM_BOT_TOKEN"):
+        from .telegram import BotApi
+
+        sender = BotApi()
+    from .telegram import daily_people_jobs
+
+    out["people"] = daily_people_jobs(store, sender, cams_fallback=_cams_point)
+    return out
+
+
+async def _planner_reply(person_id: int, lat: float | None, lon: float | None, text: str) -> str:
+    from .agents.runtime import run_turn
+
+    state = {"person_id": person_id}
+    if lat is not None and lon is not None:
+        state.update(lat=lat, lon=lon)
+    turn = await run_turn("planner", f"p{person_id}", text, state=state)
+    return turn.text
+
+
+@app.post("/telegram/webhook")
+async def telegram_webhook(
+    request: Request,
+    x_telegram_bot_api_secret_token: str | None = Header(None),
+    store: Store = Depends(get_store),
+) -> dict:
+    secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET")
+    if not secret or not hmac.compare_digest((x_telegram_bot_api_secret_token or "").encode(), secret.encode()):
+        raise HTTPException(401, "unauthorised")
+    from .telegram import BotApi, handle_update
+
+    update = await request.json()
+    await handle_update(store, BotApi(), update, _planner_reply)
+    return {"ok": True}
+
+
+@app.post("/v1/chat")
+async def web_chat(request: Request, store: Store = Depends(get_store)) -> dict:
+    """The same planner agent for the web app. Anonymous: the browser keeps a
+    random id; location comes with the message."""
+    body = await request.json()
+    text = str(body.get("text", ""))[:1000].strip()
+    anon = str(body.get("session", ""))[:64]
+    if not text or not anon:
+        raise HTTPException(422, "text and session are required")
+    from . import people as ppl
+    from .agents.runtime import run_turn
+
+    pid = ppl.get_or_create_person(store, "web", anon, str(body.get("lang", "en"))[:5])
+    lat, lon = body.get("lat"), body.get("lon")
+    if lat is not None and lon is not None:
+        try:
+            ppl.set_location(store, pid, float(lat), float(lon))
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+    p = ppl.person(store, pid)
+    state = {"person_id": pid}
+    if p["lat"] is not None:
+        state.update(lat=p["lat"], lon=p["lon"])
+    turn = await run_turn("planner", f"p{pid}", text, state=state)
+    store.event("chat", now_ist().isoformat(), {"channel": "web"})
+    return {"reply": turn.text, "tools": [c["name"] for c in turn.tool_calls]}

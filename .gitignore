@@ -56,3 +56,9 @@ variants/
 # os
 .DS_Store
 Thumbs.db
+
+# local databases
+*.db
+*.db-wal
+*.db-shm
+engine/data/

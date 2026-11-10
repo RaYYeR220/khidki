@@ -58,6 +58,8 @@ def _phi(z: float) -> float:
 
 
 def candidate_starts(earliest: datetime, latest_end: datetime, minutes: int, step: int) -> list[datetime]:
+    if minutes <= 0 or step <= 0:
+        raise ValueError("minutes and step must be positive")
     out: list[datetime] = []
     t = earliest
     last = latest_end - timedelta(minutes=minutes)
