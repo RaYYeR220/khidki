@@ -8,7 +8,7 @@ import json
 import os
 import re
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from functools import lru_cache
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
