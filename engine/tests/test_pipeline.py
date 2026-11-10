@@ -235,3 +235,30 @@ def test_upgrade_proofs_stores_completed_proof():
     # the completed proof is not asked for again
     assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 0, "completed_now": 0}
     assert len(calls) == 1
+
+
+def test_upgrade_ots_never_contacts_unknown_calendars(monkeypatch):
+    from opentimestamps.core.notary import PendingAttestation
+    from opentimestamps.core.op import OpSHA256
+    from opentimestamps.core.serialize import BytesSerializationContext
+    from opentimestamps.core.timestamp import DetachedTimestampFile, Timestamp
+
+    from khidki import ledger
+
+    digest = bytes.fromhex(sha256_hex("payload"))
+    ts = Timestamp(digest)
+    ts.attestations.add(PendingAttestation("http://169.254.169.254/latest"))
+    ctx = BytesSerializationContext()
+    DetachedTimestampFile(OpSHA256(), ts).serialize(ctx)
+    contacted = []
+
+    class Spy:
+        def __init__(self, uri):
+            contacted.append(uri)
+
+        def get_timestamp(self, *a, **k):
+            raise AssertionError("must not be called")
+
+    monkeypatch.setattr("opentimestamps.calendar.RemoteCalendar", Spy)
+    out, verified = ledger.upgrade_ots(ctx.getbytes(), header_for=lambda h: None)
+    assert contacted == [] and verified is False

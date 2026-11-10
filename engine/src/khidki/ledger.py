@@ -111,12 +111,38 @@ def ots_file(sha256: str, calendar_proofs: dict[str, bytes]) -> bytes | None:
     return OTS_MAGIC + b"\x01" + b"\x08" + bytes.fromhex(sha256) + body
 
 
-def upgrade_ots(ots: bytes, timeout: float = 15.0) -> tuple[bytes, bool]:
+# Calendars we submit to and their pending attestations point at. Proof bytes come
+# from third parties, so any other URI found inside a proof is never contacted.
+ALLOWED_CALENDARS = {
+    "https://alice.btc.calendar.opentimestamps.org",
+    "https://bob.btc.calendar.opentimestamps.org",
+    "https://finney.calendar.eternitywall.com",
+    "https://btc.calendar.catallaxy.com",
+}
+BLOCK_API = "https://blockstream.info/api"
+
+
+def bitcoin_header(height: int, client: httpx.Client | None = None) -> bytes | None:
+    """80-byte block header at ``height`` from a public block explorer."""
+    client = client or httpx.Client(timeout=15.0)
+    try:
+        h = client.get(f"{BLOCK_API}/block-height/{int(height)}")
+        h.raise_for_status()
+        hdr = client.get(f"{BLOCK_API}/block/{h.text.strip()}/header")
+        hdr.raise_for_status()
+        raw = bytes.fromhex(hdr.text.strip())
+        return raw if len(raw) == 80 else None
+    except (httpx.HTTPError, ValueError):
+        return None
+
+
+def upgrade_ots(ots: bytes, timeout: float = 15.0, header_for=bitcoin_header) -> tuple[bytes, bool]:
     """Ask the calendars for the finished (Bitcoin-attested) proof.
 
     Returns the possibly-upgraded .ots bytes and whether it now carries a
-    Bitcoin block-header attestation. Calendars that have not committed yet are
-    left pending; nothing is changed if every calendar is unreachable."""
+    Bitcoin attestation that VERIFIES against the real block header (the
+    attested digest must equal the block's merkle root). Calendars that have not
+    committed yet are left pending; unknown calendar URIs are never contacted."""
     from opentimestamps.calendar import CommitmentNotFoundError, RemoteCalendar
     from opentimestamps.core.notary import (
         BitcoinBlockHeaderAttestation,
@@ -128,23 +154,35 @@ def upgrade_ots(ots: bytes, timeout: float = 15.0) -> tuple[bytes, bool]:
     )
     from opentimestamps.core.timestamp import DetachedTimestampFile
 
+    log = logging.getLogger("khidki.ledger")
     f = DetachedTimestampFile.deserialize(BytesDeserializationContext(ots))
     for sub in list(_walk(f.timestamp)):
         for att in list(sub.attestations):
             if not isinstance(att, PendingAttestation):
                 continue
+            uri = att.uri.rstrip("/")
+            if uri not in ALLOWED_CALENDARS:
+                log.warning("skipping calendar not on the allow-list: %s", uri)
+                continue
             try:
-                upgraded = RemoteCalendar(att.uri).get_timestamp(sub.msg, timeout=timeout)
+                upgraded = RemoteCalendar(uri).get_timestamp(sub.msg, timeout=timeout)
             except CommitmentNotFoundError:
-                continue  # calendar has not committed this digest to a block yet
-            except Exception as e:  # unreachable calendar: keep the pending proof, try next hour
-                logging.getLogger("khidki.ledger").info("ots upgrade via %s failed: %r", att.uri, e)
+                continue  # not in a block yet
+            except Exception as e:  # unreachable calendar: keep the pending proof, retry later
+                log.info("ots upgrade via %s failed: %r", uri, e)
                 continue
             sub.merge(upgraded)
     ctx = BytesSerializationContext()
     f.serialize(ctx)
-    complete = any(isinstance(a, BitcoinBlockHeaderAttestation) for _, a in f.timestamp.all_attestations())
-    return ctx.getbytes(), complete
+    verified = False
+    for msg, att in f.timestamp.all_attestations():
+        if isinstance(att, BitcoinBlockHeaderAttestation):
+            header = header_for(att.height)
+            # the merkle root sits at bytes 36..68 of the header, in the same byte order as the digest
+            if header is not None and header[36:68] == msg:
+                verified = True
+                break
+    return ctx.getbytes(), verified
 
 
 def _walk(ts):
