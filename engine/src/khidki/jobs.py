@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Callable, Iterable, Protocol
 
@@ -372,6 +373,31 @@ def run_audit(store: Store, target: date) -> dict:
     return {"day": target.isoformat(), "stations": len(coords), "flags": len(flags), "by_kind": kinds}
 
 
+def make_bulletin(store: Store, target: date, writer=None) -> dict:
+    """Have the auditor agent write the day's monitor-health bulletin from the
+    stored flags (English and Hindi). ``writer`` is injectable for tests."""
+    if store.one("SELECT 1 FROM bulletins WHERE day=?", (target.isoformat(),)):
+        return {"day": target.isoformat(), "status": "exists"}
+    n = store.one("SELECT COUNT(*) n FROM audit_flags WHERE day=?", (target.isoformat(),))["n"]
+    if writer is None:
+        import asyncio
+
+        from .agents.runtime import run_turn
+
+        def writer(day: str) -> str:
+            t = asyncio.run(run_turn("auditor", "system", f"Write the monitor health bulletin for {day}.", session_id=f"bulletin-{day}"))
+            return t.text
+
+    text = writer(target.isoformat())
+    if not text:
+        return {"day": target.isoformat(), "status": "empty"}
+    store.x(
+        "INSERT OR REPLACE INTO bulletins(day, created_at, text, flags) VALUES (?,?,?,?)",
+        (target.isoformat(), now_ist().isoformat(), text, n),
+    )
+    return {"day": target.isoformat(), "status": "written", "flags": n}
+
+
 # --- timestamp proofs ------------------------------------------------------------------
 
 
@@ -444,6 +470,14 @@ def tick(
             if store.one("SELECT 1 FROM recommendations WHERE day=? LIMIT 1", (yesterday.isoformat(),)):
                 out["verify"] = verify(store, yesterday)
             out["audit"] = run_audit(store, yesterday)
+        if now.hour >= VERIFY_LAG_HOURS and os.environ.get("VENICE_API_KEY") and store.one(
+            "SELECT 1 FROM audit_flags WHERE day=? LIMIT 1", (yesterday.isoformat(),)
+        ):
+            try:  # the bulletin is prose on top of the audit; it never blocks the data pipeline
+                out["bulletin"] = make_bulletin(store, yesterday)
+            except Exception as e:
+                log.warning("bulletin failed: %r", e)
+                out["bulletin"] = {"error": e.__class__.__name__}
         if now.minute < 15:  # once an hour, last, and isolated: proofs never block the data pipeline
             try:
                 out["proofs"] = upgrade_proofs(store)

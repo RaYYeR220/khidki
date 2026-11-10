@@ -305,3 +305,12 @@ def test_city_from_cpcb_name():
     assert city_from_name("R K Puram, Delhi - DPCC") == "Delhi"
     assert city_from_name("Bandra Kurla Complex, Mumbai - IITM") == "Mumbai"
     assert city_from_name("Lonely Station") is None
+
+
+def test_bulletin_written_once_per_day():
+    s = Store(":memory:")
+    s.x("INSERT INTO audit_flags(day, station_id, kind, severity, detail, created_at) VALUES ('2026-11-09','oaq:1','missing_hours','warn','{}','x')")
+    res = jobs.make_bulletin(s, date(2026, 11, 9), writer=lambda d: f"bulletin for {d}")
+    assert res == {"day": "2026-11-09", "status": "written", "flags": 1}
+    assert jobs.make_bulletin(s, date(2026, 11, 9), writer=lambda d: "again")["status"] == "exists"
+    assert s.one("SELECT text FROM bulletins")["text"] == "bulletin for 2026-11-09"

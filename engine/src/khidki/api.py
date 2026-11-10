@@ -118,6 +118,23 @@ def air_now(lat: float = Query(..., ge=6, le=37.5), lon: float = Query(..., ge=6
     return service.air_now(store, lat, lon, now_ist())
 
 
+_geo_per_ip = RateLimiter(rate_per_min=20, burst=10)
+
+
+@app.get("/v1/geocode")
+def geocode(request: Request, q: str = Query(..., min_length=2, max_length=120)) -> dict:
+    xff = request.headers.get("x-forwarded-for", "")
+    ip = xff.split(",")[-1].strip() if xff else (request.client.host if request.client else "?")
+    if not _geo_per_ip.allow(ip):
+        raise HTTPException(429, "too many searches, please wait a moment")
+    from .geocode import search
+
+    try:
+        return {"results": list(search(q))}
+    except Exception as e:
+        raise HTTPException(502, "place search is unavailable right now") from e
+
+
 @app.get("/v1/stations")
 def stations(store: Store = Depends(get_store)) -> dict:
     rows = store.q(
@@ -216,6 +233,19 @@ def audit(day: str | None = None, store: Store = Depends(get_store)) -> dict:
         "by_kind": by_kind,
         "flags": [{**{k: r[k] for k in ("station_id", "name", "city", "kind", "severity")}, "detail": json.loads(r["detail"])} for r in rows],
     }
+
+
+@app.get("/v1/bulletin")
+def bulletin(day: str | None = None, store: Store = Depends(get_store)) -> dict:
+    """The auditor agent's plain-language bulletin for a day's monitor audit."""
+    r = (
+        store.one("SELECT * FROM bulletins WHERE day=?", (day,))
+        if day
+        else store.one("SELECT * FROM bulletins ORDER BY day DESC LIMIT 1")
+    )
+    if not r:
+        return {"status": "none", "day": day}
+    return {"status": "ok", **dict(r)}
 
 
 @app.get("/v1/impact")
