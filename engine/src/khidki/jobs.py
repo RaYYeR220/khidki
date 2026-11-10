@@ -338,6 +338,31 @@ def run_audit(store: Store, target: date) -> dict:
     return {"day": target.isoformat(), "stations": len(coords), "flags": len(flags), "by_kind": kinds}
 
 
+# --- timestamp proofs ------------------------------------------------------------------
+
+
+def upgrade_proofs(store: Store, upgrade=None) -> dict:
+    """Try to complete pending OpenTimestamps proofs (Bitcoin attestation arrives
+    a few hours after submission). Each upgraded proof is stored as a new event;
+    the API serves the latest one."""
+    from .ledger import upgrade_ots
+
+    upgrade = upgrade or upgrade_ots
+    latest: dict[str, dict] = {}
+    for r in store.q("SELECT id, meta FROM events WHERE kind='ots_proof' ORDER BY id"):
+        m = json.loads(r["meta"])
+        latest[m["day"]] = m
+    done = 0
+    for day, m in latest.items():
+        if m.get("complete"):
+            continue
+        new, complete = upgrade(bytes.fromhex(m["ots_hex"]))
+        if complete or new.hex() != m["ots_hex"]:
+            store.event("ots_proof", now_ist().isoformat(), {"day": day, "ots_hex": new.hex(), "complete": complete})
+            done += int(complete)
+    return {"pending_days": sum(1 for m in latest.values() if not m.get("complete")), "completed_now": done}
+
+
 # --- the hourly tick -------------------------------------------------------------------
 
 
@@ -360,6 +385,8 @@ def tick(store: Store, *, latest: LatestSource | None, cams: CamsSource | None, 
                 out["cams"] = ingest_cams(store, cams)
         if now.hour >= PUBLISH_HOUR:
             out["publish"] = publish(store, tomorrow, issued_at=now)
+        if now.minute < 15:  # once an hour
+            out["proofs"] = upgrade_proofs(store)
         yesterday = now.date() - timedelta(days=1)
         if now.hour >= VERIFY_LAG_HOURS and not store.one(
             "SELECT 1 FROM verdicts WHERE day=? LIMIT 1", (yesterday.isoformat(),)

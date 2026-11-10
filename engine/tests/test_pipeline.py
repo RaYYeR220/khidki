@@ -220,3 +220,18 @@ def test_refresh_stations_keeps_only_live_reference_monitors():
     res = jobs.refresh_stations(s, NS(india_pm25_locations=lambda: locs))
     assert res == {"active": 1, "skipped_low_cost_or_no_coords": 1, "skipped_stale": 1}
     assert [r["id"] for r in s.q("SELECT id FROM stations WHERE active=1")] == ["oaq:1"]
+
+
+def test_upgrade_proofs_stores_completed_proof():
+    s = Store(":memory:")
+    s.event("ots_proof", "2026-11-11T21:00:00+05:30", {"day": "2026-11-12", "ots_hex": "00aa"})
+    calls = []
+
+    def fake_upgrade(b):
+        calls.append(b)
+        return b + b"\x01", True
+
+    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 1, "completed_now": 1}
+    # the completed proof is not asked for again
+    assert jobs.upgrade_proofs(s, fake_upgrade) == {"pending_days": 0, "completed_now": 0}
+    assert len(calls) == 1

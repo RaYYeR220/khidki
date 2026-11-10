@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import dataclass
 from typing import Any, Iterable
 
@@ -108,3 +109,45 @@ def ots_file(sha256: str, calendar_proofs: dict[str, bytes]) -> bytes | None:
             body += b"\xff"
         body += p
     return OTS_MAGIC + b"\x01" + b"\x08" + bytes.fromhex(sha256) + body
+
+
+def upgrade_ots(ots: bytes, timeout: float = 15.0) -> tuple[bytes, bool]:
+    """Ask the calendars for the finished (Bitcoin-attested) proof.
+
+    Returns the possibly-upgraded .ots bytes and whether it now carries a
+    Bitcoin block-header attestation. Calendars that have not committed yet are
+    left pending; nothing is changed if every calendar is unreachable."""
+    from opentimestamps.calendar import CommitmentNotFoundError, RemoteCalendar
+    from opentimestamps.core.notary import (
+        BitcoinBlockHeaderAttestation,
+        PendingAttestation,
+    )
+    from opentimestamps.core.serialize import (
+        BytesDeserializationContext,
+        BytesSerializationContext,
+    )
+    from opentimestamps.core.timestamp import DetachedTimestampFile
+
+    f = DetachedTimestampFile.deserialize(BytesDeserializationContext(ots))
+    for sub in list(_walk(f.timestamp)):
+        for att in list(sub.attestations):
+            if not isinstance(att, PendingAttestation):
+                continue
+            try:
+                upgraded = RemoteCalendar(att.uri).get_timestamp(sub.msg, timeout=timeout)
+            except CommitmentNotFoundError:
+                continue  # calendar has not committed this digest to a block yet
+            except Exception as e:  # unreachable calendar: keep the pending proof, try next hour
+                logging.getLogger("khidki.ledger").info("ots upgrade via %s failed: %r", att.uri, e)
+                continue
+            sub.merge(upgraded)
+    ctx = BytesSerializationContext()
+    f.serialize(ctx)
+    complete = any(isinstance(a, BitcoinBlockHeaderAttestation) for _, a in f.timestamp.all_attestations())
+    return ctx.getbytes(), complete
+
+
+def _walk(ts):
+    yield ts
+    for child in ts.ops.values():
+        yield from _walk(child)

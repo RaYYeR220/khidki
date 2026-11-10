@@ -15,6 +15,7 @@ dependencies = [
     "litellm>=1.97.0",
     "mcp>=2.3.0",
     "numpy>=2.5.4",
+    "opentimestamps>=0.5.0",
     "pandas>=3.1.1",
     "pydantic>=2.14.3",
     "python-dateutil>=4.0.0",

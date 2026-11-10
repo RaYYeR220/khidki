@@ -7,6 +7,7 @@ import hmac
 import json
 import os
 import re
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from functools import lru_cache
 
@@ -18,12 +19,9 @@ from . import jobs, service
 from .aqi import pm25_category
 from .exposure import Activity, AgeBand
 from .jobs import now_ist
+from .mcp_server import mcp as _mcp
 from .ratelimit import RateLimiter
 from .store import Store
-
-from contextlib import asynccontextmanager
-
-from .mcp_server import mcp as _mcp
 
 _mcp_app = _mcp.streamable_http_app(streamable_http_path="/", stateless_http=True, json_response=True, host="0.0.0.0")
 
@@ -165,7 +163,12 @@ def station(sid: str, day: str = "today", store: Store = Depends(get_store)) -> 
 @app.get("/v1/ledger")
 def ledger_index(store: Store = Depends(get_store)) -> dict:
     rows = store.q("SELECT day, issued_at, model, sha256, n_stations, n_recommendations, anchor FROM commitments ORDER BY day DESC")
-    return {"commitments": [dict(r) for r in rows]}
+    complete = {
+        json.loads(r["meta"])["day"]
+        for r in store.q("SELECT meta FROM events WHERE kind='ots_proof'")
+        if json.loads(r["meta"]).get("complete")
+    }
+    return {"commitments": [{**dict(r), "bitcoin_attested": r["day"] in complete} for r in rows]}
 
 
 @app.get("/v1/ledger/{day}.json")
