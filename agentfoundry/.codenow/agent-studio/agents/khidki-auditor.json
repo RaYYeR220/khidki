@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "function": "other",
+  "version": "0.1.0",
+  "builtBy": "Khidki",
+  "runsAt": "Self-hosted (Google ADK on Cloud Run, Mumbai)",
+  "authMode": "none",
+  "price": "free",
+  "origin": "built",
+  "lifecycle": "live",
+  "kit": "google-adk-py",
+  "createdAt": 1794491624665,
+  "updatedAt": 1794491624665,
+  "memoryConfig": {
+    "enabled": false
+  },
+  "slug": "khidki-auditor",
+  "name": "Khidki auditor",
+  "description": "Writes the daily monitor-health bulletin for India's government air monitors in English and Hindi, from the engine's data-quality flags, with exact counts and neutral wording.",
+  "preferredModel": "claude-sonnet-5-5",
+  "invocationUrl": "https://khidki-engine-ptslyhnp7q-el.a.run.app/v1/bulletin",
+  "promptField": "day",
+  "responseField": "text",
+  "tags": [
+    "air-quality",
+    "india",
+    "audit",
+    "bilingual",
+    "google-adk-py"
+  ],
+  "prompts": [
+    "khidki-auditor"
+  ],
+  "evals": [
+    "khidki-auditor"
+  ],
+  "tools": [
+    "monitor_health"
+  ],
+  "dataAccess": [
+    "monitor audit flags (public)"
+  ],
+  "guardrails": {
+    "dataAccess": [
+      "public audit data"
+    ],
+    "actions": [
+      "read-only"
+    ],
+    "requireApprovalForWrites": false
+  }
+}

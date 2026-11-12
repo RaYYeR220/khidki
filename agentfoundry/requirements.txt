@@ -1,0 +1,2 @@
+google-adk[db]>=2.14
+litellm>=1.80

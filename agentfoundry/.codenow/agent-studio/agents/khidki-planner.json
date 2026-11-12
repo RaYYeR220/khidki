@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "function": "other",
+  "version": "0.1.0",
+  "builtBy": "Khidki",
+  "runsAt": "Self-hosted (Google ADK on Cloud Run, Mumbai)",
+  "authMode": "none",
+  "price": "free",
+  "origin": "built",
+  "lifecycle": "live",
+  "kit": "google-adk-py",
+  "createdAt": 1794491624665,
+  "updatedAt": 1794491624665,
+  "memoryConfig": {
+    "enabled": false
+  },
+  "slug": "khidki-planner",
+  "name": "Khidki planner",
+  "description": "Finds the cleanest-air time for a person's walk, run, children's play, commute or window airing in India, from the government monitors around them, and explains it in their own language and script. Every number comes from the Khidki engine.",
+  "preferredModel": "claude-haiku-5-5",
+  "invocationUrl": "https://khidki-engine-ptslyhnp7q-el.a.run.app/v1/chat",
+  "promptField": "text",
+  "responseField": "reply",
+  "tags": [
+    "air-quality",
+    "india",
+    "health",
+    "multilingual",
+    "google-adk-py"
+  ],
+  "prompts": [
+    "khidki-planner"
+  ],
+  "evals": [
+    "khidki-planner"
+  ],
+  "tools": [
+    "find_window",
+    "find_airing_time",
+    "air_now"
+  ],
+  "dataAccess": [
+    "CPCB and state-board monitors via OpenAQ (public)",
+    "CAMS forecast via Open-Meteo (public)",
+    "the person's saved location"
+  ],
+  "guardrails": {
+    "dataAccess": [
+      "public air-quality data",
+      "saved location"
+    ],
+    "actions": [
+      "read-only, except saving a routine on request"
+    ],
+    "requireApprovalForWrites": false
+  }
+}
