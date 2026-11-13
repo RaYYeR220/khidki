@@ -77,6 +77,14 @@ web/      Next.js: landing, your window, the ledger, monitor health, impact
 docs/     method, claims and how to check them
 ```
 
+## Built with AgentFoundry
+
+The two agents are an AgentFoundry project in [`agentfoundry/`](agentfoundry): manifests, system prompts and eval suites under `.codenow/agent-studio/`, tools that AgentFoundry discovers on its own (`agentfoundry/tools/khidki_tools.py`, calling the live engine), the Google ADK kit, and a runnable `agent.py`. Opened in the AgentFoundry IDE, both agents, their four tools, two prompts and two eval suites appear in the Agents panel:
+
+![Khidki's agents in the AgentFoundry Agents panel](docs/agentfoundry/agents-panel.png)
+
+The same agents run in production inside the engine. While building we hit a Windows bug in AgentFoundry's eval buttons (backslashes stripped from the suite path); the cause and a fix are in [docs/agentfoundry/FEEDBACK.md](docs/agentfoundry/FEEDBACK.md).
+
 ## Run it
 
 ```bash
