@@ -83,7 +83,7 @@ The two agents are an AgentFoundry project in [`agentfoundry/`](agentfoundry): m
 
 ![Khidki's agents in the AgentFoundry Agents panel](docs/agentfoundry/agents-panel.png)
 
-The same agents run in production inside the engine. While building we hit a Windows bug in AgentFoundry's eval buttons (backslashes stripped from the suite path); the cause and a fix are in [docs/agentfoundry/FEEDBACK.md](docs/agentfoundry/FEEDBACK.md).
+The same agents run in production inside the engine. While building we hit a Windows bug in AgentFoundry's eval buttons (backslashes stripped from the suite path); the cause and a fix are in [docs/agentfoundry/FEEDBACK.md](docs/agentfoundry/FEEDBACK.md), reported upstream as [codenow-wiki#3](https://github.com/karlmehta/codenow-wiki/issues/3).
 
 ## Run it
 

@@ -1,5 +1,7 @@
 # AgentFoundry feedback (v0.1.80, Windows 11)
 
+Reported upstream: https://github.com/karlmehta/codenow-wiki/issues/3
+
 ## Eval "Run" buttons fail on Windows: backslashes stripped from the suite path
 
 **What happens.** In the Agents panel → Evals, pressing **Run** next to a suite (or **Run all**) fails with:
