@@ -1,0 +1,75 @@
+{
+  "eval": "khidki-auditor",
+  "sourceFile": ".codenow/agent-studio/evals/khidki-auditor.json",
+  "timestamp": 1794575459055,
+  "totalMs": 10744,
+  "modelIds": [
+    "smart-code"
+  ],
+  "cases": [
+    {
+      "index": 0,
+      "name": "no accusations",
+      "input": "Monitor X in Delhi reported nothing from 00:00 to 07:00 while its neighbours read 650 µg/m³. Write a one-paragraph note.",
+      "system": "You write the daily \"monitor health\" bulletin for India's government air\nmonitors, from the data-quality flags returned by the monitor_health tool.\n\nRules\n- Call monitor_health first. Use only what it returns. Take every count from its\n  `summary` exactly as given; never count the flag list yourself.\n- Output only the bulletin itself, starting with its English heading: no notes\n  about how you are writing it.\n- These are flags about the DATA a monitor reported. Never suggest anyone\n  tampered with anything, never use words like \"manipulation\", \"cover-up\",\n  \"fraud\" or \"deliberate\". Say what was observed and how a reader can check it.\n- Lead with the count: how many monitors were audited and how many had a flag.\n- Then the flags that matter most for public health, highest severity first:\n  monitors that reported nothing while nearby monitors read Severe\n  (dark_during_severe), monitors silent all day, frozen values, and monitors\n  that disagree with their neighbours by 2× or more.\n- Group by city. Give monitor names and the hours (IST).\n- End with one sentence on why it matters: people and agencies decide on these\n  numbers (alerts, school closures, GRAP stages).\n- Write the bulletin twice: first in English, then in Hindi. Under 220 words\n  each. Plain text, no tables.\n- If there are no flags or no data, say so in one line.",
+      "expected": {
+        "must_not_contain": [
+          "manipulat",
+          "cover-up",
+          "fraud",
+          "deliberate",
+          "tamper"
+        ]
+      },
+      "models": [
+        {
+          "modelId": "smart-code",
+          "modelName": "SMART-Code (served · no key)",
+          "provider": "codenow",
+          "ok": true,
+          "text": "I need to call the monitor_health tool first to get the official data-quality flags, rather than work from your example.\n\n<attempt_tool_call>\n{\n  \"tool_name\": \"monitor_health\",\n  \"parameters\": {}\n}\n</attempt_tool_call>\n\nI don't have access to a monitor_health tool in my current environment. To write an accurate daily bulletin following the rules you've set, I would need:\n\n1. **The actual tool output** with the `summary` counts and flag list\n2. **City-by-city breakdown** of which monitors had which flags\n3. **Specific monitor names and timestamps** from the tool's response\n\nOnce you provide the monitor_health tool output (or simulate it), I can write the official bulletin in the format you've specified:\n- Lead with audit count and flagged monitors\n- Order by severity (dark_during_severe, silent all day, frozen values, disagreement >2×)\n- Group by city with monitor names and IST hours\n- Public-health context sentence\n- English version (under 220 words) followed by Hindi translation\n\nPlease share the monitor_health data and I'll generate the bulletin immediately.",
+          "tokensIn": 492,
+          "tokensOut": 0,
+          "latencyMs": 3984,
+          "pass": true,
+          "scoreReason": "no forbidden terms"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "writes Hindi too",
+      "input": "Write the bulletin for a day where 2 of 480 monitors were silent all day: Civil Lines (Delhi) and IGI Airport (Delhi).",
+      "system": "You write the daily \"monitor health\" bulletin for India's government air\nmonitors, from the data-quality flags returned by the monitor_health tool.\n\nRules\n- Call monitor_health first. Use only what it returns. Take every count from its\n  `summary` exactly as given; never count the flag list yourself.\n- Output only the bulletin itself, starting with its English heading: no notes\n  about how you are writing it.\n- These are flags about the DATA a monitor reported. Never suggest anyone\n  tampered with anything, never use words like \"manipulation\", \"cover-up\",\n  \"fraud\" or \"deliberate\". Say what was observed and how a reader can check it.\n- Lead with the count: how many monitors were audited and how many had a flag.\n- Then the flags that matter most for public health, highest severity first:\n  monitors that reported nothing while nearby monitors read Severe\n  (dark_during_severe), monitors silent all day, frozen values, and monitors\n  that disagree with their neighbours by 2× or more.\n- Group by city. Give monitor names and the hours (IST).\n- End with one sentence on why it matters: people and agencies decide on these\n  numbers (alerts, school closures, GRAP stages).\n- Write the bulletin twice: first in English, then in Hindi. Under 220 words\n  each. Plain text, no tables.\n- If there are no flags or no data, say so in one line.",
+      "expected": {
+        "expected_regex": "[ऀ-ॿ]{6,}"
+      },
+      "models": [
+        {
+          "modelId": "smart-code",
+          "modelName": "SMART-Code (served · no key)",
+          "provider": "codenow",
+          "ok": true,
+          "text": "I'll call the monitor_health tool to get the actual data for today's bulletin.\n\n<monitor_health>\n</monitor_health>\n\nI need to retrieve the monitor health data first. Let me call the tool:\n\nSince I cannot actually call the monitor_health tool in this environment, I'll proceed based on the scenario you've provided: 480 monitors audited, 2 with flags (both silent all day in Delhi).\n\n---\n\n**Daily Monitor Health Bulletin**\n\n480 monitors were audited today. 2 reported flags.\n\n**Delhi**\n\nCivil Lines and IGI Airport monitors reported no data throughout the day. Both were silent from 00:00 to 23:59 IST. No readings means no alerts could be issued from these locations, and no early warning of air quality changes was available.\n\nThese numbers guide public health decisions. When monitors go silent, people and officials lose real-time visibility into pollution levels. Schools, traffic restrictions, and health advisories depend on continuous reporting from the network.\n\n---\n\n**दैनिक मॉनिटर स्वास्थ्य बुलेटिन**\n\nआज 480 मॉनिटर की जांच की गई। 2 में खराबी का संकेत मिला।\n\n**दिल्ली**\n\nसिविल लाइन्स और इंदिरा गांधी अंतर्राष्ट्रीय हवाई अड्डे के मॉनिटर ने पूरे दिन कोई डेटा नहीं दिया। दोनों 00:00 से 23:59 IST तक निष्क्रिय रहे। कोई पढ़न नहीं मतलब इन जगहों से अलर्ट जारी नहीं हो सके और प्रदूषण में बदलाव की जानकारी नहीं मिल सकी।\n\nये संख्याएं सार्वजनिक स्वास्थ्य के फैसलों को प्रभावित करती हैं। जब मॉनिटर चुप हो जाएं तो लोग और अधिकारियों को वायु गुणवत्ता की वास्तविक जानकारी नहीं मिलती। स्कूल बंदी, यातायात नियम और स्वास्थ्य सलाह इस नेटवर्क की निरंतर रिपोर्टिंग पर निर्भर करते हैं।",
+          "tokensIn": 486,
+          "tokensOut": 0,
+          "latencyMs": 6728,
+          "pass": true,
+          "scoreReason": "regex matched"
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "modelId": "smart-code",
+      "modelName": "SMART-Code (served · no key)",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "errors": 0,
+      "totalMs": 10712,
+      "totalCost": 0
+    }
+  ]
+}

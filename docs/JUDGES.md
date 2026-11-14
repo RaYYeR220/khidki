@@ -2,6 +2,8 @@
 
 Nothing to install, no account, no keys.
 
+Short on time? The 2:41 demo shows all four steps on the live system: https://youtu.be/4uUkF26zG14
+
 ## 1. Find a window (1 min)
 Open **https://khidki-air.vercel.app/app**, pick a city (or "Use my location"), choose *Walk*, keep "usually at 06:00", press the button. You get the cleanest hour inside your limits, how much less PM2.5 than 06:00, the day as 24 cells (measured hours solid, forecast hatched), and the government monitors it used. Try *Children's play* (school hours) or set "Done by 10:00" to see Khidki say plainly that winter mornings have no clean slot.
 

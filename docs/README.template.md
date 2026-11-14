@@ -4,6 +4,8 @@
 
 > *Khidki* means "window": the hour you go out in, and the window of your home.
 
+**[Watch the demo (2:41)](https://youtu.be/4uUkF26zG14)** · [Open the app]({{app_url}}/app) · [Ledger]({{app_url}}/ledger) · [Telegram bot]({{bot_url}}) · [Review in five minutes](docs/JUDGES.md)
+
 ## The problem
 
 - **All of India breathes unsafe air.** Every one of India's ~1.4 billion people lives where annual PM2.5 exceeds the WHO guideline; 46% live above India's own national standard (AQLI 2025).
@@ -62,6 +64,7 @@ The grader is strict: a number counts as unsupported unless it appears in a tool
 
 ## Try it
 
+- Video: https://youtu.be/4uUkF26zG14
 - Web: {{app_url}}
 - Telegram: {{bot_url}}
 - API: `GET {{api_url}}/v1/window?lat=28.59&lon=77.22&activity=walk&minutes=60&habitual=06:00&day=tomorrow` ([docs]({{api_url}}/docs))
@@ -82,6 +85,8 @@ docs/     method, claims and how to check them
 The two agents are an AgentFoundry project in [`agentfoundry/`](agentfoundry): manifests, system prompts and eval suites under `.codenow/agent-studio/`, tools that AgentFoundry discovers on its own (`agentfoundry/tools/khidki_tools.py`, calling the live engine), the Google ADK kit, and a runnable `agent.py`. Opened in the AgentFoundry IDE, both agents, their four tools, two prompts and two eval suites appear in the Agents panel:
 
 ![Khidki's agents in the AgentFoundry Agents panel](docs/agentfoundry/agents-panel.png)
+
+AgentFoundry's own eval runner (the Eval tab, SMART-Code model, prompt only, no tools) has graded the suites 24 times; the planner suite passed 8/8 in 6 of 12 runs, and every run, failures included, is committed in [`agentfoundry/.codenow/agent-studio/evals/results/`](agentfoundry/.codenow/agent-studio/evals/results) (summary in [agentfoundry/README.md](agentfoundry/README.md#eval-runs-in-agentfoundry)).
 
 The same agents run in production inside the engine. While building we hit a Windows bug in AgentFoundry's eval buttons (backslashes stripped from the suite path); the cause and a fix are in [docs/agentfoundry/FEEDBACK.md](docs/agentfoundry/FEEDBACK.md), reported upstream as [codenow-wiki#3](https://github.com/karlmehta/codenow-wiki/issues/3).
 

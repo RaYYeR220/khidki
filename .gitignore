@@ -48,3 +48,7 @@ Thumbs.db
 *.db-wal
 *.db-shm
 engine/data/
+
+# AgentFoundry starter example (not part of Khidki)
+agentfoundry/.codenow/agent-studio/evals/example.json
+agentfoundry/.codenow/agent-studio/evals/results/example-*
